@@ -88,7 +88,6 @@ PyJWT==1.7.1
 pylint==2.5.3
 pyOpenSSL==19.1.0
 pyparsing==2.4.7
-pypiwin32==223
 PySocks==1.7.1
 pytest==4.5.0
 pytest-asyncio==0.14.0
@@ -139,3 +138,4 @@ websocket-client==0.57.0
 whitenoise==5.0.1
 wrapt==1.12.1
 zope.interface==5.1.0
+whitenoise
