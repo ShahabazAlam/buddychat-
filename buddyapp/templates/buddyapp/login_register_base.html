@@ -1,0 +1,1004 @@
+<!doctype html>
+<html lang="en">
+<head>
+<style>
+@keyframes blinker {
+    from {opacity: 1.0;}
+    to {opacity: 0.0;}
+  }
+  
+.blink {
+    text-decoration: blink;
+    animation-name: blinker;
+    animation-duration: 0.6s;
+    animation-iteration-count:infinite;
+    animation-timing-function:ease-in-out;
+    animation-direction: alternate;
+  }
+</style>
+{% load static %}
+    <!-- Basic Page Needs
+    ================================================== -->
+    <title> {{name}} </title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Buddychat">
+    <link rel="icon" href={% static "assets/images/favicon.png" %} />
+
+    <!-- CSS 
+    ================================================== -->
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    
+    <link rel="stylesheet" href={% static "assets/css/style.css" %} />
+    <link rel="stylesheet" href={% static "assets/css/night-mode.css" %} />
+    <link rel="stylesheet" href={% static "assets/css/framework.css" %} />
+    <link rel="stylesheet" href={% static "assets/css/jquery-confirm.css" %} />
+    <link rel="stylesheet" href={% static "assets/css/jquery-confirm.min.css" %} />
+    <link rel="stylesheet" href={% static "jquery-ui/jquery-ui.css" %} />
+    <link rel="stylesheet" href={% static "jquery-ui/jquery-ui.structure.css" %}/>
+    <link rel="stylesheet" href={% static "jquery-ui/jquery-ui.structure.min.css" %}/>
+    <link rel="stylesheet" href={% static "jquery-ui/jquery-ui.theme.css" %} />
+    <link rel="stylesheet" href={% static "jquery-ui/jquery-ui.theme.min.css" %}/>
+    <link rel="stylesheet" href={% static "modal/modal.css" %} />
+    <script src="https://code.iconify.design/1/1.0.7/iconify.min.js"></script>
+    <!-- jquery ui js
+    ================================================== -->
+
+    <script src="{% static "jquery-ui/jquery-3.5.1.js" %}"></script>
+    <script src="{% static "jquery-ui/jquery-ui.js" %}"></script>
+    <script src="{% static "jquery-ui/jquery-ui.min.js" %}"></script>
+    <!-- icons
+    ================================================== -->
+    <link rel="stylesheet" href={% static "assets/css/icons.css" %} />
+    <!-- Google font
+    ================================================== -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+
+    <!------ Include the above in your HEAD tag ---------->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    </head>
+
+    <body>
+
+    {% block body_content %}
+    
+    {% endblock  %}
+
+</div>
+    
+</body>
+<!-- javaScripts
+                ================================================== -->
+    <script src={% static "js/reconnecting-websocket.js" %}></script>
+    <script src={% static "assets/js/framework.js" %}></script>
+    <script src={% static "assets/js/bootstrap-select.min.html" %}></script>
+    <script src={% static "assets/js/simplebar.js" %}></script>
+    <script src={% static "assets/js/mmenu.js" %}></script>
+    <script src={% static "assets/js/jquery-confirm.js" %}></script>
+    <script src={% static "assets/js/jquery-confirm.min.js" %}></script>
+    <script src={% static "agotime/checktime.js" %}></script>    
+{% block javascriptcodes %}
+
+    {% endblock  %}
+    <!-- For Night mode -->
+    <script>
+        (function (window, document, undefined) {
+            'use strict';
+            if (!('localStorage' in window)) return;
+            var nightMode = localStorage.getItem('gmtNightMode');
+            if (nightMode) {
+                document.documentElement.className += ' night-mode';
+            }
+        })(window, document);
+
+
+        (function (window, document, undefined) {
+
+            'use strict';
+
+            // Feature test
+            if (!('localStorage' in window)) return;
+
+            // Get our newly insert toggle
+            var nightMode = document.querySelector('#night-mode');
+            if (!nightMode) return;
+
+            // When clicked, toggle night mode on or off
+            nightMode.addEventListener('click', function (event) {
+                event.preventDefault();
+                document.documentElement.classList.toggle('night-mode');
+                if (document.documentElement.classList.contains('night-mode')) {
+                    localStorage.setItem('gmtNightMode', true);
+                    return;
+                }
+                localStorage.removeItem('gmtNightMode');
+            }, false);
+
+        })(window, document);
+
+
+// modal script
+
+
+
+// online offline user -------------------------------------
+
+    let onlineSocket = new ReconnectingWebSocket(
+        'ws://' + window.location.host +
+        '/ws/online_check/');
+
+    onlineSocket.onopen = function () {
+        sendDeviceinfo()
+    }
+
+
+    function sendDeviceinfo() {
+        var dInfo = "{{request.user_agent}}"
+        onlineSocket.send(JSON.stringify({'deviceInfo': dInfo}));
+    }
+
+
+
+// friend socket
+    let friendsSocket = new ReconnectingWebSocket(
+        'ws://' + window.location.host +
+        '/ws/friends/');
+
+    friendsSocket.onopen = function () {
+        fetchOnlineFriends()
+        fetchFriendsBirthday()
+        fetchFriendsStatus()
+            // Send to Everyone
+        setInterval(function() {
+        friendsSocket.send(JSON.stringify({'command': 'check_status_timeout'}));
+        }, 5000);
+
+    }
+
+
+    function fetchOnlineFriends() {
+        friendsSocket.send(JSON.stringify({'command': 'fetch_online_friends'}));
+    }
+
+    function fetchFriendsBirthday() {
+        friendsSocket.send(JSON.stringify({'command': 'fetch_friends_birthday'}));
+    }
+
+    function fetchFriendsStatus() {
+        friendsSocket.send(JSON.stringify({'command': 'fetch_friends_status'}));
+    }        
+
+    friendsSocket.onmessage = function (event)
+    {
+        let data = JSON.parse(event.data)
+        if(data != null)
+        {
+            if (data['command'] === 'online_friends_list') 
+            {
+                let online_friends = JSON.parse(data['online_friends']);
+                for (let i = 0; i < online_friends.length; i++)
+                {
+                    onlineFriends(online_friends[i]);
+                }
+            }else if (data['command'] === 'friend_login') 
+            {
+                onlineFriends(JSON.parse(data['user']));
+
+            }else if (data['command'] === 'friend_logout') 
+            {
+                $("#online_friend"+data['id']).remove()
+            }else if (data['command'] === 'friend_birthday') 
+            {
+            let birthday_friends = JSON.parse(data['friend']);
+            if(birthday_friends != ''){$("#birthday").show()}
+                for (let i = 0; i < birthday_friends.length; i++)
+                {
+                    friendBirthday(birthday_friends[i]);
+                }
+            }else if (data['command'] === 'status_list') 
+            {
+                let status_friends = JSON.parse(data['status']);
+                for (let i = 0; i < status_friends.length; i++)
+                {
+                    statusList(status_friends[i]);
+                }
+            }else if (data['command'] === 'status_time_out'){
+                    var id = JSON.parse(data['id']);
+                    $("#status_list_li"+id).remove()
+            }else if (data['command'] === 'new_status_created') {
+                    var new_status = JSON.parse(data['data']);
+                        statusList(new_status)
+                }
+            
+        }
+    }
+//show online friend list
+
+function onlineFriends(online_friend){
+    
+    if(online_friend.imageProfile == '')
+        {
+            d_p ='<img id="frame_dp" src="media/profileImages/'+online_friend.profileImage+'"alt="Not Found">'
+            }else{
+            if(online_friend.gender == 'male'){
+                d_p = '<img src="/static/gender/male.jpg" alt="Not Found">'
+            }else{
+                d_p ='<img src="static/gender/female.jpg" alt="Not Found">'
+            }
+    }   
+    let single = `<div id="online_friend${online_friend.id}">
+                    <a href="/profile/user_timeline/${online_friend.id}">
+                        <div class="contact-list">
+                            <div class="contact-list-media"> ${d_p}
+                                <span class="online-dot"></span> </div>
+                            <h5> ${online_friend.first_name} ${online_friend.last_name} </h5>
+                        </div>
+                    </a>
+                    <div uk-drop="pos: left-center ;animation: uk-animation-slide-left-small">
+                        <div class="contact-list-box">
+                            <div class="contact-list-box-media">
+                                ${d_p}<span class="online-dot"></span>
+                            </div>
+                            <h4> ${online_friend.first_name} ${online_friend.last_name} </h4>
+                            <div class="contact-list-box-btns">
+                                <a href="/messages/${online_friend.id}" class="button primary block mr-2"> <i
+                                        class="uil-envelope mr-1"></i>
+                                    Send message</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+    $("#left_sidebar_friendlist").append(single)
+}
+//end show online friend list
+
+// show birthday notifications
+function friendBirthday(birthday){
+    var d_p = '';
+    var birth_day = ''
+    var now = new Date();
+    var user_bday = new Date(birthday.timestamp)
+    var today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() ));
+    var msgtime = new Date(Date.UTC(user_bday.getUTCFullYear(), user_bday.getUTCMonth(), user_bday.getUTCDate() ));
+    if(msgtime.getTime() === (today.getTime() - 86400000))
+    {
+        birth_day = 'was birthday yesterday ';
+    }
+    else if(msgtime.getTime() == today.getTime())
+    {
+            birth_day = 'have birthday today<br><small>click to wish him</small>';
+    }
+    else if(msgtime.getTime() < (today.getTime() - 86400000)){
+
+            birth_day = 'had birthday recently'
+    }
+    if(birthday.actor.profileImage != null)
+    {
+        d_p = '<img src="/media/profileImages/'+birthday.actor.profileImage+'" width="35px" class="mr-3" alt="not" />';
+    }
+    else{
+            if(birthday.actor.gender != 'male')
+            {
+                d_p = '<img src="/static/gender/female.jpg" width="35px" class="mr-3" alt="not" />';
+            }
+            else{ d_p = '<img src="/static/gender/male.jpg" width="35px" class="mr-3" alt="not" />'; }
+        }
+
+        let single = `<a href="javascript:void(0)" class="uk-link-reset" id="birthday${birthday.id}">
+                            <div class="uk-flex uk-flex-top py-2 pb-0 pl-2 mb-2 bg-secondary-hover rounded">
+                               <img src="static/assets/images/icons/gift-icon.png" width="35px" class="mr-3" alt="">
+                                <p> <strong> ${ birthday.actor.first_name} ${birthday.actor.last_name} </strong>${birth_day}</p>
+                            </div>
+                        </a>`
+    $('#birthday_list').append(single);
+
+    $("#birthday"+birthday.id).on('click',function(){
+        readBirthdayNotification(birthday.id,birthday.actor.id)
+    })
+}
+// show birthday notification end
+
+// show statuses
+function statusList(status){
+        if(status.user__profileImage == 'None'){status.user__profileImage=null}
+       if(status.user__profileImage != null)
+        {
+            d_p = '<img src="/media/profileImages/'+status.user__profileImage+'" alt="not" />';
+        }
+    else{
+            if(status.user__gender != 'male')
+            {
+                d_p = '<img src="/static/gender/female.jpg" alt="not" >';
+            }
+            else{ d_p = '<img src="/static/gender/male.jpg" alt="not" >'; }
+        }  
+    let single = '<li id="status_list_li'+status.id+'">'+
+                    '<a href="javascript:void(0)" uk-toggle="target: body ; cls: is-open">'+
+                        '<div id="image'+status.id+'" class="story-card" data-src="/media/statusMedia/'+status.image+'" uk-img>'+
+                            d_p
+                            +'<div class="story-card-content">'+
+                                '<h4>'+ status.user__first_name +' '+ status.user__last_name +'</h4>'+
+                           '</div>'+
+                        '</div>'+
+                    '</a>';
+                    if(status.user__id == '{{request.user.id}}'){
+                        single += '<center><a class="delete'+status.id+'"><i class="uil-trash-alt mr-1"></i>Del</a></center>';
+                    }
+            single += '</li>';
+    $("#status_list").append(single)
+    $("#image"+status.id).on('click',function(){
+            $.dialog({
+                useBootstrap:false,
+                title:'<h4>'+ status.user__first_name +' '+ status.user__last_name +'</h4>',
+                content:`<img id="img" src="/media/statusMedia/${status.image}" alt="not" style="height:400px;width:100%" >`,
+            });
+    })
+    $(".delete"+status.id).on('click',function(){
+        deleteStatus(status.id)
+    })
+}
+//end show status list
+// delete status
+function deleteStatus(s_id){
+    var con = $.confirm({
+        useBootstrap:false,
+        title: 'Confirm!',
+        content: 'Really want to delete!',
+        buttons: {
+            Yes: function () {
+                let url = `/newsfeeds/delete-status`;
+                    $.ajax({
+                            url:url,
+                            type:'GET',
+                            data : {'s_id':s_id},
+                            success:(function(data) {
+                                if(data['success'] == 'success'){
+                                    $("#status_list_li"+s_id).remove()
+                                }
+                            }),
+                            error: (function (err) {
+                                console.log(err);
+                        })
+                })
+            },
+            No: function () {
+                con.close()
+            }
+        }
+    });
+}
+//read birthday notification function
+function readBirthdayNotification(b_id,user_id){
+    let url = `/notifications/read-birthday-notifications`;
+         $.ajax({
+                url:url,
+                type:'GET',
+                data : {'b_id':b_id},
+                success:(function(data) {
+                    if(data['success'] == 'success'){
+                        $("#birthday"+b_id).remove()
+                        if($('#birthday_list').is(':empty')){
+                            $("#birthday").hide()
+                        } 
+                        window.location.href = '/profile/user_timeline/'+user_id;
+                    }
+                }),
+                error: (function (err) {
+                    console.log(err);
+                })
+         })
+}
+// end show birthday notifications
+
+
+let NotificationSocket = new ReconnectingWebSocket(
+    'ws://' + window.location.host +
+    '/ws/all_notifications/');
+
+NotificationSocket.onopen = function (e) {
+    requestNotificationSocket()
+    messagesNotificationSocket()
+    commentLikeNotificationSocket()
+
+};
+
+
+// ------------------------friend request related notifications -------------------------
+// friend request related notifications methods and controls
+
+$("#unread_notifications").on('click',function(){
+    $("#read_li_notifications").removeAttr('class','uk-active')
+    $("#unread_li_notifications").attr('class','uk-active')
+    $("#request_notifications_list").html('')
+    requestNotificationSocket()
+})
+
+$("#read_notifications").on('click',function(){
+    $("#request_notifications_list").html('')
+    $("#unread_li_notifications").removeAttr('class','uk-active')
+    $("#read_li_notifications").attr('class','uk-active')
+    NotificationSocket.send(JSON.stringify({'command': 'fetch_read_friends_notifications'}));
+})
+
+$("#remove_all_unread").on('click',function(){
+    NotificationSocket.send(JSON.stringify({'command': 'remove_all_unread_notifications'}));
+})
+
+$("#remove_all_read").on('click',function(){
+    NotificationSocket.send(JSON.stringify({'command': 'remove_all_read_notifications'}));
+})
+
+// --------------------------cl notifications controlls ---------------------------------
+
+$("#unread_cl_notifications").on('click',function(){
+    $("#read_cl_li_notifications").removeAttr('class','uk-active')
+    $("#unread_cl_li_notifications").attr('class','uk-active')
+    $("#cl_notifications_list").html('')
+    commentLikeNotificationSocket()
+})
+
+$("#read_cl_notifications").on('click',function(){
+    $("#cl_notifications_list").html('')
+    $("#unread_cl_li_notifications").removeAttr('class','uk-active')
+    $("#read_cl_li_notifications").attr('class','uk-active')
+    NotificationSocket.send(JSON.stringify({'command': 'fetch_read_cl_notifications'}));
+})
+
+$("#remove_all_cl_unread").on('click',function(){
+    NotificationSocket.send(JSON.stringify({'command': 'remove_all_cl_unread_notifications'}));
+})
+
+$("#remove_all_cl_read").on('click',function(){
+    NotificationSocket.send(JSON.stringify({'command': 'remove_all_cl_read_notifications'}));
+})
+
+//-----------------------------------------------------------------------
+
+NotificationSocket.onmessage = function (event)
+{
+    let data = JSON.parse(event.data);
+    
+
+    
+// ----------------------------request related recieved commands -----------------------------------------
+
+
+// friend request related notifications controls
+
+    if (data['command'] === 'notifications') 
+    {
+        let notifications = JSON.parse(data['notifications']);
+        $('#r_count').html('<span id="notify_num">'+notifications.length+'</span>');
+        if(notifications.length == 0)
+        {
+            $('#notify_num').hide()
+            $('#n_read_options').hide()
+            $('#n_unread_options').hide()  
+        }
+        for (let i = 0; i < notifications.length; i++)
+        {
+            requestNotifications(notifications[i]);
+        }
+    }
+
+    else if (data['command'] === 'read_notifications')
+    {
+        let notifications = JSON.parse(data['notifications']);
+        if(notifications.length == 0)
+        {
+            $('#n_read_options').hide() 
+        }else
+        {
+              $('#n_read_options').show()
+        }
+        for (let i = 0; i < notifications.length; i++)
+        {
+            requestNotifications(notifications[i]);
+        }
+        
+
+
+    } else if (data['command'] === 'new_friend_request_notification')
+    {
+        let notification = $('#notify_num');
+        $('#notify_num').text(parseInt(notification.text()) + 1);
+        if(parseInt(notification.text()) > 0)
+        {
+            $('#notify_num').fadeIn()
+            $('#n_unread_options').show() 
+        }
+        requestNotifications(JSON.parse(data['notification']));
+
+
+    }else if (data['command'] === 'new_accept_request_notification') {        
+        let notification = $('#notify_num');
+        $('#notify_num').text(parseInt(notification.text()) + 1);        
+        if(parseInt(notification.text()) > 0){
+            $('#notify_num').fadeIn()
+            $('#n_unread_options').show() 
+        }
+        requestNotifications(JSON.parse(data['notification']));
+
+
+    }else if (data['command'] === 'removed_unread_notifications') {
+            $("#notifications_list").html('')
+            $('#r_count').html('')
+            $('#n_unread_options').hide()
+
+
+    }else if (data['command'] === 'removed_read_notifications') {
+            $("#notifications_list").html('')
+            $('#n_read_options').hide()
+    }
+
+
+
+
+// ----------------------message related recieved command ---------------------------------------------
+
+
+    
+// message related notifications controls
+    if (data['command'] === 'message_notifications')
+        {
+            let notifications = JSON.parse(data['message_notifications']);
+            $('#m_count').html('<span id="message_notify_num">'+notifications.length+'</span>');
+            if(notifications.length == 0){
+              $('#message_notify_num').hide()
+              $('#m_read_options').hide()
+              $('#m_unread_options').hide() 
+              $("#delete_message_notification").hide() 
+              $("#see-all-msg-noty").hide()
+            }
+            for (let i = 0; i < notifications.length; i++) {
+                messageNotifications(notifications[i]);
+            }
+        } 
+            
+        else if (data['command'] === 'new_message_notification')     
+        {
+            let notification = $('#message_notify_num');
+            $('#message_notify_num').text(parseInt(notification.text()) + 1);
+            if(parseInt(notification.text()) > 0)
+            {
+                $('#message_notify_num').fadeIn()
+                $('#m_unread_options').show()
+                $("#delete_message_notification").show()
+                $("#see-all-msg-noty").show()
+            }
+            messageNotifications(JSON.parse(data['message_notification']));
+        }  
+        else if (data['command'] === 'new_existing_message_notification')     
+        {
+            var n_time = timeAgo(data['timestamp']);
+            let notification = $('#message_notify_num');
+            $('.msg_num'+data['id']).text(parseInt($('.msg_num'+data['id']).text()) + 1);
+            $('.time_update'+data['id']).text(n_time);
+        }       
+    
+// ----------------------comment like related recieved command ---------------------------------------------
+
+
+    
+// comment like related notifications controls
+
+    if (data['command'] === 'comment_like_notifications')
+        {
+            let notifications = JSON.parse(data['cl_notifications']);
+            $('#cl_count').html('<span id="cl_notify_num">'+notifications.length+'</span>');
+            if(notifications.length == 0){
+              $('#cl_notify_num').hide()
+              $('#cl_read_options').hide()
+              $('#cl_unread_options').hide() 
+            }
+            for (let i = 0; i < notifications.length; i++) {
+                clNotifications(notifications[i]);
+            }
+        } 
+            
+        else if (data['command'] === 'new_cl_notification')     
+        {
+            let notification = $('#cl_notify_num');
+            $('#cl_notify_num').text(parseInt(notification.text()) + 1);
+            if(parseInt(notification.text()) > 0)
+            {
+                $('#cl_notify_num').fadeIn()
+                $('#cl_unread_options').show()
+            }
+            clNotifications(JSON.parse(data['cl_notifications']));
+        }  
+        else if (data['command'] === 'new_existing_comment_notification')     
+        {
+            var cl_n_time = timeAgo(data['timestamp']);
+            let notification = $('#cl_notify_num');
+            $('.cl_num'+data['id']).text(parseInt($('.cl_num'+data['id']).text()) + 1);
+            $('.cl_time_update'+data['id']).text(cl_n_time);
+        }  
+          else if (data['command'] === 'cl_readed_notifications')
+        {
+            let notifications = JSON.parse(data['notifications']);
+            if(notifications.length == 0)
+            {
+                $('#cl_read_options').hide() 
+            }else
+            {
+                $('#cl_read_options').show()
+            }
+            for (let i = 0; i < notifications.length; i++)
+            {
+                clNotifications(notifications[i]);
+
+            }
+        }else if(data['command'] === 'disliked_post_notification'){
+             var notification = $('#cl_notify_num');
+                $('#cl_notify_num').text(parseInt(notification.text()) - 1);
+                if(parseInt(notification.text()) == 0){
+                    $('#cl_notify_num').hide()
+                }
+            $("#cl_list"+data['id']).fadeOut()
+        }   
+    
+};
+
+
+
+// -------------------------------send command for notifications ----------------------------
+
+
+
+// send command to fetch request related notifications
+function requestNotificationSocket() {
+    NotificationSocket.send(JSON.stringify({'command': 'fetch_friends_notifications'}));
+}
+
+// send command to fetch message related notifications
+function messagesNotificationSocket() {
+    NotificationSocket.send(JSON.stringify({'command': 'fetch_messages_notifications'}));
+}
+
+// send command to other notifications
+function commentLikeNotificationSocket() {
+    NotificationSocket.send(JSON.stringify({'command': 'fetch_comment_like_notifications'}));
+}
+
+
+
+
+
+
+// ---------------------------------------------display notifications----------------------------------------------
+
+
+
+// display friend requst related notifications
+function requestNotifications(notification) {
+    var d_p = '';
+    var button = '';
+    if(notification.actor.profileImage != null){
+        d_p = '<img src="/media/profileImages/'+notification.actor.profileImage+'"  alt="not" />';
+    }
+    else{
+        if(notification.actor.gender != 'male'){
+            d_p = '<img src="/static/gender/female.jpg"  alt="not" />';
+        }
+        else{ d_p = '<img src="/static/gender/male.jpg"  alt="not" />'; }
+    }
+    if(notification.verb === 'accepted your friend request'){
+        button = ''
+    }else if (notification.verb === 'sent you friend request' && notification.unread == 1){
+        button = ` <a class="button primary small accept-request" onclick="accept(this,${notification.id})" data-friend="${notification.actor.id}">Accept</a>
+                    <a class="button danger small" onclick="reject(this,${notification.id})" data-friend="${notification.actor.id}">Reject</a>`
+    }
+
+    var n_time = timeAgo(notification.timestamp);
+    let single = `<div id="n_list${notification.id}" style="border-radius: 10px;">
+                    <li>
+                        <a href="#">
+                            <span class="message-avatar">
+                                ${d_p}
+                            </span>
+                            <span class="notification-text">
+                                <strong>${notification.actor.first_name} ${notification.actor.last_name}</strong> ${notification.verb}
+                                <span class="text-primary"></span>
+                                <br> <span class="time-ago">${n_time}</span>
+                            </span>
+                        </a>
+                    </li>
+                ${button}
+            </div>`;
+    $('#request_notifications_list').prepend(single);
+
+    if (notification.verb === 'accepted your friend request')
+    {
+        $("#n_list"+notification.id).attr("onclick",`read(${notification.id},${notification.actor.id})`);
+    }
+}
+
+
+
+// display messages notifications_list
+
+function messageNotifications(notification)
+{
+    var d_p = '';
+    var button = '';
+    if(notification.actor.profileImage != null)
+    {
+        d_p = '<img src="/media/profileImages/'+notification.actor.profileImage+'"  alt="not" />';
+    }
+    else{
+            if(notification.actor.gender != 'male')
+            {
+                d_p = '<img src="/static/gender/female.jpg"  alt="not" />';
+            }
+            else{ d_p = '<img src="/static/gender/male.jpg"  alt="not" />'; }
+        }
+    var n_time = timeAgo(notification.timestamp);
+    let single = `<li id="m_list${notification.id}"style="float:left">
+                    <a href="javascript:void(0)">
+                        <span class="message-avatar">
+                            ${d_p}
+                        </span>
+                        <div class="notification-text notification-msg-text">
+                            <strong>${notification.actor.first_name} ${notification.actor.last_name}</strong>
+                            <span style="background:#90EE90;border-radius:100%;height:20px;width:20px;text-align:center" class="pull-right msg_num${notification.id}">${notification.ncounter}</span>
+                            <p>${notification.verb} <span class="time-ago time_update${notification.id}"> ${n_time} </span> </p>
+                        </div>
+                    </a>
+                </li>`
+    $('#message_notifications_list').prepend(single);
+
+    $("#m_list"+notification.id).on('click',function(){
+        readMessageNotifications(notification.id,notification.actor.id)
+    })
+}
+
+
+
+// display comment like notifications_list
+
+function clNotifications(notification)
+{
+    var d_p = '';
+    var button = '';
+    if(notification.actor.profileImage != null)
+    {
+        d_p = '<img src="/media/profileImages/'+notification.actor.profileImage+'"  alt="not" />';
+    }
+    else{
+            if(notification.actor.gender != 'male')
+            {
+                d_p = '<img src="/static/gender/female.jpg"  alt="not" />';
+            }
+            else{ d_p = '<img src="/static/gender/male.jpg"  alt="not" />'; }
+        }
+    var cl_n_time = timeAgo(notification.timestamp);
+    let single = `<li id="cl_list${notification.id}" style="width:100%">
+                    <span style="background:#90EE90;border-radius:100%;height:20px;width:20px;text-align:center" class="pull-right cl_num${notification.id}">${notification.n_o_c}</span>
+                    <a href="javascript:void(0)">
+                        <span class="message-avatar">
+                            ${d_p}
+                        </span>
+                        <div class="notification-text notification-cl-text">
+                            <strong>${notification.actor.first_name} ${notification.actor.last_name}</strong>
+                            <p>${notification.verb}</p> <span class="time-ago cl_time_update${notification.id}"> ${cl_n_time} </span> 
+                        </div>
+                    </a>
+                </li>`
+    $('#cl_notifications_list').prepend(single);
+
+    $("#cl_list"+notification.id).on('click',function(){
+        readCLNotifications(notification.id,notification.actor.id,notification.postId)
+    })
+}
+
+
+//--------------------------------Methods for actions in notifications---------------------------------
+
+// function read notification
+function read(id,user_id){
+    let url = '/notifications/mark-notification-as-read';
+    $.ajax({
+        type: 'GET',
+        url: url,
+        data:{'id':id},
+        success: (function () {
+            var notification = $('#notify_num');
+            $('#notify_num').text(parseInt(notification.text()) - 1);
+            if(parseInt(notification.text()) == 0){
+             $('#notify_num').hide()}
+            $("#n_list"+id).fadeOut()
+            window.location.href = '/profile/user_timeline/'+user_id;
+        }),
+        error: (function (err) {
+            console.log(err);
+        })
+    });
+}
+
+// function accept request
+function accept(li,li_id) {
+    let friend = $(li).data('friend');
+
+    let url = `/friends/accept-request/${friend}`;
+
+    $.ajax({
+        type: 'GET',
+        url: url,
+        success: (function () {
+            var notification = $('#notify_num');
+            $('#notify_num').text(parseInt(notification.text()) - 1);
+            if(parseInt(notification.text()) == 0){
+            $('#notify_num').hide()
+            $('#n_unread_options').hide()}
+            $("#n_list"+li_id).fadeOut()
+        }),
+        error: (function (err) {
+            console.log(err);
+        })
+    });
+}
+//cancel request function
+    function reject(li,li_id){
+        let friend = $(li).data('friend');
+
+        let url = `/friends/cancel-request/${friend}`;
+         $.ajax({
+                url:url,
+                type:'GET',
+                success:(function() {
+                    var notification = $('#notify_num');
+                    $('#notify_num').text(parseInt(notification.text()) - 1);
+                    if(parseInt(notification.text()) == 0){
+                        $('#notify_num').hide()}
+                    $("#n_list"+li_id).fadeOut()
+             }),
+             error: (function (err) {
+                console.log(err);
+        })
+        })
+    }
+
+
+// read message notification
+ function readMessageNotifications(m_id,user_id){
+     let url = `/messages/read-msg-notifications`;
+         $.ajax({
+                url:url,
+                type:'GET',
+                data : {'m_id':m_id},
+                success:(function(data) {
+                    var notification = $('#message_notify_num');
+                    $('#message_notify_num').text(parseInt(notification.text()) - 1);
+                    if(parseInt(notification.text()) == 0){
+                        $('#message_notify_num').hide()
+                        $("#delete_message_notification").hide()
+                        $("#see-all-msg-noty").hide()
+                    }
+                    $("#m_list"+m_id).fadeOut()
+                    window.location.href = '/messages/'+user_id;
+             }),
+             error: (function (err) {
+                console.log(err);
+        })
+    })
+ }
+
+ // delete all message notifications
+$("#delete_message_notification").click(function(){
+    let url = `/messages/remove-all-notifications`;
+         $.ajax({
+                url:url,
+                type:'GET',
+                success:(function() {
+                $('#message_notifications_list').html('') 
+                $('#m_count').html('')
+                $("#delete_message_notification").hide()
+                $("#see-all-msg-noty").hide()
+             }),
+             error: (function (err) {
+                console.log(err);
+        })
+    })
+})
+
+
+$("#see-all-msg-noty").click(function(){
+    let url = `/messages/remove-all-notifications`;
+         $.ajax({
+                url:url,
+                type:'GET',
+                success:(function() {
+                $('#message_notifications_list').html('') 
+                $('#m_count').html('')
+                $("#delete_message_notification").hide()
+                $("#see-all-msg-noty").hide()
+                window.location.href = '/messages/'
+             }),
+             error: (function (err) {
+                console.log(err);
+        })
+    })
+})
+
+function  readCLNotifications(cl_id,u_id,postId){
+    let url = '/notifications/read-one-comment/'+postId +'/'+ cl_id ;
+        var notification = $('#cl_notify_num');
+                $('#cl_notify_num').text(parseInt(notification.text()) - 1);
+                if(parseInt(notification.text()) == 0){
+                    $('#cl_notify_num').hide()
+                }
+                $("#cl_list"+cl_id).fadeOut()
+            window.location.href = url
+}
+
+//---------------------------------------------
+
+//search 
+const user_input = $("#user-input")
+const search_icon = $('#search-icon')
+const contain_div = $('.content-div')
+const endpoint = '/newsfeeds/search'
+const delay_by_in_ms = 700
+let scheduled_function = false
+
+let ajax_call = function (endpoint, request_parameters) {
+    $.getJSON(endpoint, request_parameters)
+        .done(response => {
+        if(response != '')
+            {
+                let single ='';
+                for(var r in response){
+                    let d_p = '';
+                    if(response[r].profileImage != null)
+                        {
+                            d_p = '<img src="/media/profileImages/'+response[r].profileImage+'" style="height:60px;width:60px" class="circle" alt="not" />';
+                        }
+                        else{
+                                if(response[r].gender != 'male')
+                                {
+                                    d_p = '<img src="/static/gender/female.jpg" class="circle" style="height:60px;width:60px" alt="not" />';
+                                }
+                                else{ d_p = '<img src="/static/gender/male.jpg" class="circle" style="height:60px;width:60px" alt="not" />'; }
+                            }
+                                single += `<li>
+                                            <a href="/profile/user_timeline/${response[r].id}">
+                                                <span class="message-avatar">
+                                                    ${d_p}
+                                                </span>
+                                                <div class="notification-text notification-cl-text">
+                                                    <h4>${response[r].first_name}  ${response[r].last_name}</h4>
+                                                </div>
+                                            </a>
+                                        </li>`;
+                    contain_div.html(single)
+                }
+            }else{
+                contain_div.html('No result found! Enter matching name')
+            }
+            search_icon.removeClass('blink')
+        })
+}
+
+
+user_input.on('keyup', function () {
+
+    const request_parameters = {
+        input: $(this).val() // value of user_input: the HTML element with ID user-input
+    }
+
+    // start animating the search icon with the CSS class
+    search_icon.addClass('blink')
+
+    // if scheduled_function is NOT false, cancel the execution of the function
+    if (scheduled_function) {
+        clearTimeout(scheduled_function)
+    }
+
+    // setTimeout returns the ID of the function to be executed
+    scheduled_function = setTimeout(ajax_call, delay_by_in_ms, endpoint, request_parameters)
+})
+
+    </script>
+    
+</html>

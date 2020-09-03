@@ -1,0 +1,600 @@
+{% extends 'buddyapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="main_content">
+
+
+            <div class="main_content_inner p-sm-0 ml-sm-4">
+
+                <h1 c> Setting </h1>
+
+                <div class="uk-position-relative" uk-grid>
+                    <div class="uk-width-1-4@m uk-flex-last@m pl-sm-0">
+
+                        <nav class="responsive-tab style-3 setting-menu"
+                            uk-sticky="top:30 ; offset:100; media:@m ;bottom:true; animation: uk-animation-slide-top">
+                            <ul>
+                                <li class="uk-active"><a href="#"> <i class="uil-cog"></i> General </a></li>
+                                <li><a href="#" id="change_password"> <i class="uil-unlock-alt"></i>Change Password </a></li>
+                                <li><a href="#" id="change_email"> <span class="iconify" data-icon="entypo:email" data-inline="false"></span> Change Email </a></li>
+                                <li><a href="#" id="delete_account"> <i class="uil-trash-alt"></i> Delete account</a></li>
+                            </ul>
+                        </nav>
+
+                    </div>
+
+                    <div class="uk-width-2-3@m mt-sm-3 pl-sm-0 p-sm-4">
+                        <div class="uk-card-default rounded password_form">
+                            <div class="p-3">
+                                <h5 class="mb-0"> Profile </h5>
+                            </div>
+                            <hr class="m-0">
+                            <div class="p-4">
+                                <a class="button warning" id="r_p_p">Remove Profile Pic</a>
+                            
+                                <a class="button warning pull-right" id="r_c_p">Remove Cover Pic</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="uk-width-2-3@m mt-sm-3 pl-sm-0 p-sm-4">
+                        <div class="uk-card-default rounded password_form" style="display:none;">
+                            <div class="p-3">
+                                <h5 class="mb-0"> Change Password </h5>
+                            </div>
+                            <hr class="m-0">
+                            <form id="changepasswordform" class="uk-child-width-1-2@s uk-grid-small p-4" uk-grid>
+                                <div>
+                                    <h5 class="uk-text-bold mb-2"> Old Password </h5>
+                                    <input type="password" class="uk-input" placeholder=" Old Password " id="oldpassword">
+                                </div>
+                                <div>
+                                    <h5 class="uk-text-bold mb-2"> New Password </h5>
+                                    <input type="password" class="uk-input" placeholder=" New Password " id="newpassword">
+                                </div>
+                                <div>
+                                    <h5 class="uk-text-bold mb-2"> Confirm Password </h5>
+                                    <input type="password" class="uk-input" placeholder=" Confirm Password" id="confirmpassword">
+                                </div>
+                            </form>
+
+                            <div class="uk-flex uk-flex-right p-4">
+                                <button class="button primary" id="changepassword">Save Changes</button>
+                            </div>
+                        </div>
+
+                            <div class="uk-card-default rounded email_form" style="display:none;">
+                            <div class="p-3">
+                                <h5 class="mb-0"> Change Email </h5>
+                            </div>
+                            <hr class="m-0">
+                            <form id="changeemailform" class="uk-child-width-1-2@s uk-grid-small p-4" uk-grid>
+                                <div>
+                                    <h5 class="uk-text-bold mb-2"> New Email</h5>
+                                    <input type="email" class="uk-input" placeholder="New Email" id="newemail">
+                                </div>
+                                <div>
+                                    <h5 class="uk-text-bold mb-2"> Password </h5>
+                                    <input type="password" class="uk-input" placeholder="Your Password" id="yourpassword">
+                                </div>
+                            </form>
+
+                            <div class="uk-flex uk-flex-right p-4">
+                                <button class="button primary" id="changeemail">Save Changes</button>
+                            </div>
+                        </div>
+
+                        <div class="uk-card-default rounded">
+                            <div class="p-3">
+                                <h5 class="mb-0"> Contact info </h5>
+                            </div>
+                            <hr class="m-0">
+                            <form class="uk-child-width-1-2@s uk-grid-small p-4" uk-grid>
+                                <div>
+                                    <h5 class="uk-text-bold mb-2"> First Name </h5>
+                                    <input type="text" class="uk-input" placeholder="First Name" id="fname">
+                                </div>
+                                <div>
+                                    <h5 class="uk-text-bold mb-2"> Last Name </h5>
+                                    <input type="text" class="uk-input" placeholder="Last Name" id="lname">
+                                </div>
+                                <div>
+                                    <h5 class="uk-text-bold mb-2"> Phone </h5>
+                                    <input type="tel" class="uk-input" placeholder="+91 555 6231 568 " id="phone">
+                                </div>
+                            </form>
+
+                            <div class="uk-flex uk-flex-right p-4">
+                                <button class="button primary" id="contactinfo">Save</button>
+                            </div>
+                        </div>
+
+                        <div class="uk-card-default rounded mt-4">
+                            <div class="p-3">
+                                <h5 class="mb-0"> Additional Info </h4>
+                            </div>
+                            <hr class="m-0">
+                            <form class="uk-child-width-1-2@s uk-grid-small p-4" uk-grid>
+                                <div>
+                                    <h5 class="uk-text-bold mb-2"> Gender </h5>
+                                    <select class="uk-select" id="gender">
+                                        <option>male</option>
+                                        <option>female</option>
+                                    </select>
+                                </div>
+                                 <div>
+                                    <h5 class="uk-text-bold mb-2"> Relationship </h5>
+                                    <select class="uk-select" id="relationship">
+                                        <option>unmarried</option>
+                                        <option>married</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <h5 class="uk-text-bold mb-2" style="inline"> DOB </h5>
+                                    <input type="date" class="uk-input" id="dob">
+                                </div>
+                                <div>
+                                    <h5 class="uk-text-bold mb-2"> Hometown </h5>
+                                    <input type="text" class="uk-input" placeholder="Hometown" id="hometown">
+                                </div>
+                                <div>
+                                    <h5 class="uk-text-bold mb-2"> Lives In </h5>
+                                    <input type="text" class="uk-input" placeholder="Your City" id="city">
+                                </div>
+                                <div>
+                                    <h5 class="uk-text-bold mb-2"> Work at </h5>
+                                    <input type="text" class="uk-input" placeholder="Work at" id="workat">
+                                </div>
+                            </form>
+                            <div class="uk-flex uk-flex-right p-4">
+                                <button class="button primary" id="additionalinfo">Save</button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+{% endblock %}
+{% block javascriptcodes %}
+
+
+<script>
+
+// toggle button for password change
+$(document).ready(function() {
+    $('#change_password').click(function() {
+         $('.password_form').toggle("slide");
+    });
+
+ // toggle button for email change
+
+  $('#change_email').click(function() {
+         $('.email_form').toggle("slide");
+    });
+
+ // confirm dialog box
+ $('#delete_account').click(function(){
+    $.confirm({
+    useBootstrap:false,
+    boxWidth:'25%',
+    title: 'Confirm!',
+    content: '<center><img src="{% static "assets/images/avatars/avatar-2.jpg" %}"></center><hr>',
+    buttons: {
+         Yes: {
+            text: 'Yes',
+            btnClass: 'btn-red',
+            action: function(){
+            window.location.href = '/profile/delete-account/';
+        }
+    },
+        No: {
+            text: 'No',
+            btnClass: 'btn-green',
+            action: function(){
+            }
+        },
+    }
+});
+});
+
+// password change function
+$("#changepassword").on('click',function(){
+    var oldpassword = $('#oldpassword').val()
+    var newpassword = $('#newpassword').val()
+    var confirmpassword = $('#confirmpassword').val()
+if(oldpassword ==''){
+    $('#oldpassword').css("border","1px solid orange");
+    $('#oldpassword').attr('placeholder', 'Please Enter Password');
+    $('#oldpassword').focus()
+    }
+else if(newpassword ==''){
+    $('#newpassword').css("border","1px solid orange");
+    $('#newpassword').attr('placeholder', 'Please Enter Email');
+    $('#newpassword').focus()
+    }
+else if(confirmpassword ==''){
+    $('#confirmpassword').css("border","1px solid orange");
+    $('#confirmpassword').attr('placeholder', 'Please Enter Email');
+    $('#confirmpassword').focus()
+    }
+else{
+    if(newpassword === confirmpassword)
+    {
+        $.confirm({
+            useBootstrap:false,
+            boxWidth:'25%',
+            content: function () {
+                var self = this;
+                return $.ajax({
+                    url: '/profile/change-password',
+                    data: {
+                        'oldpassword': oldpassword,
+                        'newpassword': newpassword,
+                        'confirmpassword': confirmpassword,
+                    },
+                    dataType: 'json',
+                    method: 'get',
+                    success : function (response) {
+                        if(response.message == 'success'){
+                        self.setContent('Successfully Changed');
+                        self.setTitle('Success');
+                        $('#oldpassword').val('')
+                        $('#newpassword').val('')
+                        $('#confirmpassword').val('')                        
+
+                        }else if(response.message == 'not-mached'){
+                            self.setContent('Please Enter Correct old Password!');
+                            self.setTitle('Old password not matched!');
+                            $('#oldpassword').val('')
+                            $('#newpassword').val('')
+                            $('#confirmpassword').val('')
+                        }
+                    },error:function(){
+                        self.setContent('Something went wrong!');
+                        self.setTitle('Failed');
+                        $('#oldpassword').val('')
+                        $('#newpassword').val('')
+                        $('#confirmpassword').val('')
+                    }
+                });
+            }
+        });
+    }else{
+        $.dialog({
+            useBootstrap:false,
+            boxWidth:'25%',
+            title: 'Opps!',
+            content: 'The two password did not matched!',
+        });
+            $('#oldpassword').val('')
+            $('#newpassword').val('')
+            $('#confirmpassword').val('')
+    }
+        
+    }
+});
+
+// email change function
+$("#changeemail").on('click',function(){
+    var password = $('#yourpassword').val()
+    var newemail = $('#newemail').val()
+        if(password ==''){
+            $('#yourpassword').css("border","1px solid orange");
+            $('#yourpassword').attr('placeholder', 'Please Enter Password');
+            $('#yourpassword').focus()
+
+            }
+        else if(newemail ==''){
+            $('#newemail').css("border","1px solid orange");
+            $('#newemail').attr('placeholder', 'Please Enter Email');
+            $('#newemail').focus()
+
+            }
+        else{
+            if(password && newemail)
+            {
+                $.confirm({                
+                useBootstrap:false,
+                boxWidth:'25%',
+                content: function (){
+                    var self = this;
+                    return $.ajax({
+                        url: '/profile/change-email',
+                        data: {
+                            'password': password,
+                            'newemail': newemail,
+                        },
+                        dataType: 'json',
+                        method: 'get',
+                        success : function (response) {
+                            if(response.message == 'success'){
+                                self.setContent('Successfully Changed');
+                                self.setTitle('Success');
+                                $('#yourpassword').val('')
+                                $('#newemail').val('')
+                            }else if(response.message == 'failed'){
+                                self.setContent('Please check your password!');
+                                self.setTitle('Failed');
+                                $('#yourpassword').val('')
+                                $('#newemail').val('')  
+                            }
+                        },error : function(){
+                            self.setContent('Please Enter Correct Password!');
+                            self.setTitle('Failed');
+                            $('#yourpassword').val('')
+                            $('#newemail').val('')
+                        }
+                    });
+                    }
+                })
+            }else{
+            $.dialog({
+                    useBootstrap:false,
+                    boxWidth:'25%',
+                    title: 'Opps!',
+                    content: 'Please enter values!',
+                });
+            }
+    }
+})
+// contact info function
+$("#contactinfo").on('click',function(){
+    $.confirm({
+    useBootstrap:false,
+    boxWidth:'25%',
+    content: function () {
+        var self = this;
+        var fname = $('#fname').val()
+        var lname = $('#lname').val()
+        var phone = $('#phone').val()
+        if((fname && lname) || phone){
+        return $.ajax({
+            url: '/profile/update-contact-info',
+            data: {
+                'fname': fname,
+                'lname': lname,
+                'phone': phone
+            },
+            dataType: 'json',
+            method: 'get',
+            success: function (response) {
+                self.setContent('Updated Successfully');
+                self.setTitle('Success');
+                $('#fname').val('')
+                $('#lname').val('')
+                $('#phone').val('')
+                
+            },error:function(){
+                self.setContent('Something went wrong!');
+                self.setTitle('Failed');
+                $('#fname').val('')
+                $('#lname').val('')
+                $('#phone').val('')
+            }
+        });
+        }
+        else{
+        self.setTitle('Please Enter a value');  
+        }
+    }
+});
+})
+
+// additional info function
+$("#additionalinfo").on('click',function(){
+    $.confirm({
+    useBootstrap:false,
+    boxWidth:'25%',
+    content: function () {
+        var self = this;
+        var gender = $('#gender').val()
+        var relationship = $('#relationship').val()
+        var dob = $('#dob').val()
+        var hometown = $('#hometown').val()
+        var city = $('#city').val()
+        var workat = $('#workat').val()
+        if(dob || hometown || city || gender || workat || relationship){
+        return $.ajax({
+            url: '/profile/update-additional-info',
+            data: {
+                'gender': gender,
+                'relationship': relationship,
+                'dob': dob,
+                'hometown': hometown,
+                'city': city,
+                'workat': workat
+            },
+            dataType: 'json',
+            method: 'get',
+            success : function (response) {
+                    self.setContent('Successfully Changed');
+                    self.setTitle('Success');
+                    $('#gender').val('')
+                    $('#relationship').val('')
+                    $('#dob').val('')
+                    $('#hometown').val('')
+                    $('#city').val('')
+                    $('#workat').val('')
+            },error: function(){
+                    self.setContent('Something went wrong!');
+                    self.setTitle('Failed');
+                    $('#gender').val('male')
+                    $('#relationship').val('unmarried')
+                    $('#dob').val('')
+                    $('#hometown').val('')
+                    $('#city').val('')
+                    $('#workat').val('')
+            }            
+        });
+        }
+        else{
+            self.setTitle('Please enter a value'); 
+        }
+    }
+});
+})
+
+// Validation password
+// oldpassword validation
+var $passwordregexname=/^[A-Za-z0-9!@#$%^&*()_]{8,16}$/;
+    $('#oldpassword').on('keypress keydown keyup',function(){
+        if (!$(this).val().match($passwordregexname)) {
+        // there is a mismatch, hence show the error message
+        $('#oldpassword').css("border","1px solid red");
+        }
+    else{
+        // else, do not display message
+        $('#oldpassword').css("border","1px solid green");
+        }
+    });
+// newpassword validation
+        $('#newpassword').on('keypress keydown keyup',function(){
+        if (!$(this).val().match($passwordregexname)) {
+        // there is a mismatch, hence show the error message
+            $('#newpassword').css("border","1px solid red");
+        }
+    else{
+        // else, do not display message
+        $('#newpassword').css("border","1px solid green");
+        }
+    });
+
+ // confirmpassword validation
+    $('#confirmpassword').on('keypress keydown keyup',function(){
+        if (!$(this).val().match($passwordregexname)) {
+        // there is a mismatch, hence show the error message
+        $('#confirmpassword').css("border","1px solid red");
+        }
+    else{
+        // else, do not display message
+        $('#confirmpassword').css("border","1px solid green");
+        }
+    });
+
+// Validation
+// Name validation
+var $regexname=/^([a-zA-Z]{3,16})$/;
+    $('#fname').on('keypress keydown keyup',function(){
+        if (!$(this).val().match($regexname)) {
+        // there is a mismatch, hence show the error message
+        $('#fname').css("border","1px solid red");
+        }
+    else{
+        // else, do not display message
+        $('#fname').css("border","1px solid green");
+        }
+    });
+
+        $('#lname').on('keypress keydown keyup',function(){
+        if (!$(this).val().match($regexname)) {
+        // there is a mismatch, hence show the error message
+            $('#lname').css("border","1px solid red");
+        }
+    else{
+        // else, do not display message
+        $('#lname').css("border","1px solid green");
+        }
+    });
+
+    // Name validation
+    var $regexphone = /[0-9 -()+]+$/;
+    $('#phone').on('keypress keydown keyup',function(){
+        if (!$(this).val().match($regexphone)) {
+        // there is a mismatch, hence show the error message
+        $('#phone').css("border","1px solid red");
+        }
+    else{
+        // else, do not display message
+        $('#phone').css("border","1px solid green");
+        }
+    });
+
+// email change validation
+ // yourpassword validation
+    $('#yourpassword').on('keypress keydown keyup',function(){
+        if (!$(this).val().match($passwordregexname)) {
+        // there is a mismatch, hence show the error message
+        $('#yourpassword').css("border","1px solid red");
+        }
+    else{
+        // else, do not display message
+        $('#yourpassword').css("border","1px solid green");
+        }
+    });
+
+//new email validation
+
+    var $emailregexname=/^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+\.[a-zA-Z.]{2,5}$/
+    $('#newemail').on('keypress keydown keyup',function(){
+        if (!$(this).val().match($emailregexname)) {
+        // there is a mismatch, hence show the error message
+        $('#newemail').css("border","1px solid red");
+        }
+    else{
+        // else, do not display message
+        $('#newemail').css("border","1px solid green");
+        }
+    });
+
+});
+
+$("#r_p_p").on('click',function(){
+    var con = $.confirm({
+        useBootstrap:false,
+        title: 'Confirm!',
+        content: 'Really want to delete!',
+        buttons: {
+            Yes: function () {
+                let url = `/profile/remove-profile-pic`;
+                    $.ajax({
+                            url:url,
+                            type:'GET',
+                            success:(function(data) {
+                                if(data['success'] == 'success'){
+                                    $.alert('Removed successfully')
+                                }
+                            }),
+                            error: (function (err) {
+                                console.log(err);
+                        })
+                })
+            },
+            No: function () {
+                con.close()
+            }
+        }
+    });
+})
+$("#r_c_p").on('click',function(){
+    var con = $.confirm({
+        useBootstrap:false,
+        title: 'Confirm!',
+        content: 'Really want to delete!',
+        buttons: {
+            Yes: function () {
+                let url = `/profile/remove-cover-pic`;
+                    $.ajax({
+                            url:url,
+                            type:'GET',
+                            success:(function(data) {
+                                if(data['success'] == 'success'){
+                                    $.alert('Removed successfully')
+                                }
+                            }),
+                            error: (function (err) {
+                                console.log(err);
+                        })
+                })
+            },
+            No: function () {
+                con.close()
+            }
+        }
+    });
+})
+</script>
+{% endblock  %}

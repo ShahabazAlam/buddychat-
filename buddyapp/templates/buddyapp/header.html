@@ -1,0 +1,246 @@
+       {% load static %}
+       <!-- header -->
+        <div id="main_header">
+            <header>
+                <div class="header-innr">
+
+                    <!-- Logo-->
+                    <div class="header-btn-traiger" uk-toggle="target: #wrapper ; cls: collapse-sidebar mobile-visible">
+                        <span></span></div>
+
+                    <!-- Logo-->
+                    <div id="logo">
+                        <a href="/"> <img src={% static "assets/images/logo.png" %} alt=""></a>
+                        <a href="/"> <img src={% static "assets/images/logo-light.png" %} class="logo-inverse"
+                                alt=""></a>
+                    </div>
+
+                    <!-- form search-->
+                    <div class="head_search">
+                        <form>
+                            <div class="head_search_cont">
+                                <input value="" type="text" class="form-control" id="user-input"
+                                    placeholder="Search for Friends...." autocomplete="off">
+                                <i id="search-icon" class="s_icon uil-search-alt"></i>
+                            </div>
+
+                            <!-- Search box dropdown -->
+                            <div uk-dropdown="pos: top;mode:click;animation: uk-animation-slide-bottom-small"
+                                class="dropdown-search">
+                                <!-- User menu -->
+
+                                <ul class="dropdown-search-list content-div">
+                                    
+                                </ul>
+
+                            </div>
+
+
+                        </form>
+                    </div>
+
+                    <!-- user icons -->
+                    <div class="head_user">
+
+
+                        <a href="/" class="opts_icon_link uk-visible@s"> Home </a>
+                        <a href="/profile/user_timeline/{{request.user.id}}" class="opts_icon_link uk-visible@s"> {{request.user.first_name | title}} {{request.user.last_name | title}} </a>
+
+
+                        <!-- Message  notificiation dropdown -->
+                        <a href="#" class="opts_icon" uk-tooltip="title: Messages ; pos: bottom ;offset:7">
+                            <img src={% static "assets/images/icons/chat.svg" %} alt=""> <div id="m_count"></div>
+                        </a>
+
+                        <!-- Message  notificiation dropdown -->
+                        <div uk-dropdown="mode:click ; animation: uk-animation-slide-bottom-small"
+                            class="dropdown-notifications">
+                                
+                            <!-- notification contents -->
+                            <div class="dropdown-notifications-content" data-simplebar>
+
+                                <!-- notivication header -->
+                                <div class="dropdown-notifications-headline">
+                                    <h4>Messages</h4>
+                                    <a href="javascript:void(0)"class="text-danger" id="delete_message_notification">
+                                        <i class="icon-feather-trash text-danger"
+                                            uk-tooltip="title: Message Delete ; pos: left"></i> Remove All
+                                    </a>
+                                </div>
+    
+                                <!-- message notification list -->
+                                <ul id="message_notifications_list">
+                                </ul>
+
+                            </div>
+                            <div class="dropdown-notifications-footer">
+                                <a href="javascript:void(0)" id="see-all-msg-noty"> See all in Messages</a>
+                            </div>
+
+
+                        </div>
+
+                    <!-- Requests icon request_notifications_list -->
+                        <a href="#" class="opts_icon" uk-tooltip="title: Friend ; pos: bottom ;offset:7">
+                            <img src={% static "assets/images/icons/friends.png" %} alt=""><div id="r_count"></div>
+                        </a>
+
+
+                        <!-- notificiation dropdown -->
+                        <div uk-dropdown="mode:click ; animation: uk-animation-slide-bottom-small"
+                            class="dropdown-notifications">
+
+                            <!-- notification contents -->
+                            <div class="dropdown-notifications-content" data-simplebar>
+
+                                <!-- notivication header -->
+                                <div class="dropdown-notifications-headline">
+                                    <h4>Friend Requests </h4>
+                                    <a href="#">
+                                        <i class="icon-feather-settings"
+                                            uk-tooltip="title: Notifications settings ; pos: left"></i>
+                                    </a>
+                                </div>
+                                <ul class="uk-child-width-expand tab-small my-2 uk-tab">
+                                    <li id="unread_li_notifications" class="uk-active"><a id="unread_notifications" href="javascript:void(0)">Unread</a>
+                                        <span id="n_unread_options" class="icon-more uil-ellipsis-h"></span>
+                                        <div class="mt-0 p-2" uk-dropdown="pos:bottom-left;mode:click">
+                                            <ul class="uk-nav uk-dropdown-nav">
+                                                <li id="remove_all_unread" ><a href="javascript:void(0)" class="text-danger"> <i class="uil-trash-alt mr-1"></i>
+                                                        Remove all </a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li id="read_li_notifications" ><a id="read_notifications" href="javascript:void(0)">Read</a>
+                                        <span id="n_read_options" class="icon-more uil-ellipsis-h"></span>
+                                        <div class="mt-0 p-2" uk-dropdown="pos:bottom-right;mode:click ">
+                                            <ul class="uk-nav uk-dropdown-nav">
+                                                <li id="remove_all_read" ><a href="javascript:void(0)" class="text-danger"> <i class="uil-trash-alt mr-1"></i>
+                                                        Remove all </a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                </ul>
+                                <!-- notiviation list -->
+                                <ul id="request_notifications_list" style="overflow:auto;overflow-x: hidden;">                                    
+                                   
+                                </ul>
+
+                            </div>
+
+
+                        </div>
+
+
+                        <!-- notificiation icon  comment_notifications_list-->
+                        <a href="#" class="opts_icon" uk-tooltip="title: Notifications ; pos: bottom ;offset:7">
+                            <img src={% static "assets/images/icons/bell.svg" %} alt=""> <div id="cl_count"></div>
+                        </a>
+
+
+                        <!-- notificiation dropdown -->
+                        <div uk-dropdown="mode:click ; animation: uk-animation-slide-bottom-small"
+                            class="dropdown-notifications">
+
+                            <!-- notification contents -->
+                            <div class="dropdown-notifications-content" data-simplebar>
+
+                                <!-- notivication header -->
+                                <div class="dropdown-notifications-headline">
+                                    <h4>Notifications </h4>
+                                    <a href="#">
+                                        <i class="icon-feather-settings"
+                                            uk-tooltip="title: Notifications settings ; pos: left"></i>
+                                    </a>
+                                </div>
+                                <ul class="uk-child-width-expand tab-small my-2 uk-tab">
+                                    <li id="unread_cl_li_notifications" class="uk-active"><a id="unread_cl_notifications" href="javascript:void(0)">Unread</a>
+                                        <span id="cl_unread_options" class="icon-more uil-ellipsis-h"></span>
+                                        <div class="mt-0 p-2" uk-dropdown="pos:bottom-left;mode:click">
+                                            <ul class="uk-nav uk-dropdown-nav">
+                                                <li id="remove_all_cl_unread" ><a href="javascript:void(0)" class="text-danger"> <i class="uil-trash-alt mr-1"></i>
+                                                        Remove all </a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li id="read_cl_li_notifications" ><a id="read_cl_notifications" href="javascript:void(0)">Read</a>
+                                        <span id="cl_read_options" class="icon-more uil-ellipsis-h"></span>
+                                        <div class="mt-0 p-2" uk-dropdown="pos:bottom-right;mode:click ">
+                                            <ul class="uk-nav uk-dropdown-nav">
+                                                <li id="remove_all_cl_read" ><a href="javascript:void(0)" class="text-danger"> <i class="uil-trash-alt mr-1"></i>
+                                                        Remove all </a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                </ul>
+                                <!-- notiviation list -->
+                                <ul id="cl_notifications_list">                                    
+                                   
+                                </ul>
+
+                            </div>
+
+
+                        </div>
+
+
+
+                        <!-- profile -image -->
+                        <a class="opts_account" href="#"> 
+                        {% if request.user.profileImage %}
+                                <img src="{{MEDIA_URL}}profileImages/{{request.user.profileImage}}" alt="not found">
+                            {% else %}
+                                {% if request.user.gender == 'male' %}
+                                    <img src="{% static 'gender/male.jpg' %}" alt="">
+                                {% else %}
+                                    <img src="{% static 'gender/female.jpg' %}" alt="">
+                                {% endif %}
+                            {% endif %}
+                        </a>
+
+                        <!-- profile dropdown-->
+                        <div uk-dropdown="mode:click ; animation: uk-animation-slide-bottom-small"
+                            class="dropdown-notifications rounded">
+
+                            <!-- User Name / Avatar -->
+                            <a href="/profile/user_timeline/{{request.user.id}}">
+
+                                <div class="dropdown-user-details">
+                                    <div class="dropdown-user-avatar">
+                                    {% if request.user.profileImage %}
+                                        <img src="{{MEDIA_URL}}profileImages/{{request.user.profileImage}}" style="height:60px;width:60px" alt="not found">
+                                    {% else %}
+                                        {% if request.user.gender == 'male' %}
+                                            <img src="{% static 'gender/male.jpg' %}" alt="">
+                                        {% else %}
+                                            <img src="{% static 'gender/female.jpg' %}" alt="">
+                                        {% endif %}
+                                    {% endif %}
+                                    </div>
+                                    <div class="dropdown-user-name"> {{request.user.first_name|title}} {{request.user.last_name|title}} <span>See your profile</span> </div>
+                                </div>
+
+                            </a>
+
+                            <hr class="m-0">
+                            <ul class="dropdown-user-menu">
+                                <li><a href="/profile/setting"> <i class="uil-cog"></i> Account Settings</a></li>
+                                <li>
+                                    <a href="#" id="night-mode" class="btn-night-mode">
+                                        <i class="uil-moon"></i> Night mode
+                                        <span class="btn-night-mode-switch">
+                                            <span class="uk-switch-button"></span>
+                                        </span>
+                                    </a>
+                                </li>
+                                </li>
+                                <li><a href="/user_accounts/logout/"> <i class="uil-sign-out-alt"></i>Log Out</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div> <!-- / heaader-innr -->
+            </header>
+        </div>
+
+ 

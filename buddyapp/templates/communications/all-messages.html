@@ -1,0 +1,296 @@
+{% extends 'buddyapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="main_content">
+
+            <div class="main_content_inner pt-0" style="width:90%; max-width: 1300px;">
+
+                <div class="uk-grid-collapse" uk-grid>
+                    <div class="uk-width-2-4@m">
+
+                        <div class="chats-container margin-top-0">
+
+                            <div class="chats-container-inner ">
+
+                                <!-- chats -->
+                                <div class="chats-inbox">
+                                    <div class="chats-headline">
+                                        <div class="input-with-icon">
+                                            <input class="uk-input" type="text" placeholder="Search">
+                                        </div>
+                                    </div>
+
+                                    <ul>
+                                    {% for friend in friends  %}
+                                        <li>{{friend.id}}
+                                            <a href = "/messages/{{friend.id}}" >
+                                                <div class="message-avatar"><i
+                                                        class="status-icon status-online"></i>
+                                                         {% if friend.profileImage %}
+                                                            <img src="{{MEDIA_URL}}profileImages/{{friend.profileImage}}" alt="not found">
+                                                        {% else %}
+                                                            {% if friend.gender == 'male' %}
+                                                                <img src= {% static "gender/male.jpg" %} alt="">
+                                                            {% else %}
+                                                                <img src= {% static 'gender/female.jpg' %} alt="">
+                                                            {% endif %}
+                                                        {% endif %}
+                                                    </div>
+
+                                                <div class="message-by">
+                                                    <div class="message-by-headline">
+                                                        <h5> {{friend.first_name | title}}  {{friend.last_name | title}} </h5>
+                                                        <span>Yesterday</span>
+                                                    </div>
+                                                    <p>What are you doing?</p>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                                <!-- chats / End -->
+
+                                <!-- Message Content -->
+                                <div class="message-content">
+
+                                    <div class="chats-headline">
+
+                                        <div class="uk-flex">
+                                            <img src="assets/images/avatars/avatar-3.jpg" width="40px"
+                                                class="uk-border-circle" alt="">
+                                            <h4 class="ml-2"> Alex Dolgove <span>Online</span> </h4>
+                                        </div>
+
+                                        <div class="message-action">
+                                            <a href="#" uk-tooltip="filter">
+                                                <i class="uil-outgoing-call"></i>
+                                            </a>
+                                            <a href="#" uk-tooltip="filter">
+                                                <i class="uil-video"></i>
+                                            </a>
+                                            <a href="#" uk-tooltip="More">
+                                                <i class="uil-ellipsis-h"></i>
+                                            </a>
+                                            <div
+                                                uk-dropdown="pos: down ; mode: click ;animation: uk-animation-slide-bottom-small">
+                                                <ul class="uk-nav uk-dropdown-nav">
+                                                    <li><a href="#"> Refresh </a></li>
+                                                    <li><a href="#"> Delete</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <!-- Message Content Inner -->
+                                    <div class="message-content-inner">
+
+                                        <!-- Time Sign -->
+                                        <div class="message-time-sign">
+                                            <span>28 June, 2018</span>
+                                        </div>
+
+                                        <div class="message-bubble me">
+                                            <div class="message-bubble-inner">
+                                                <div class="message-avatar"><img
+                                                        src="assets/images/avatars/avatar-1.jpg" alt="" />
+                                                </div>
+                                                <div class="message-text">
+                                                    <p>How likely are you to recommend our company
+                                                        to your friends and family?</p>
+                                                </div>
+                                            </div>
+                                            <div class="uk-clearfix"></div>
+                                        </div>
+
+                                        <div class="message-bubble">
+                                            <div class="message-bubble-inner">
+                                                <div class="message-avatar"><img
+                                                        src="assets/images/avatars/avatar-2.jpg" alt="" />
+                                                </div>
+                                                <div class="message-text">
+                                                    <p>Hey there, we’re just writing to let you know 👍</p>
+                                                </div>
+                                            </div>
+                                            <div class="uk-clearfix"></div>
+                                        </div>
+                                        <em id="typing"></em>
+                                    </div>
+                                    <!-- Message Content Inner / End -->
+
+                                    <!-- Reply Area -->
+                                    <div class="message-reply">
+
+                                        <form class="uk-flex-middle uk-width-1-1" uk-grid>
+                                            <div class="uk-flex uk-flex-middle mr-3 uk-width-auto">
+                                                <a href="#" class="button primary mr-2" uk-tooltip="filter">
+                                                    <i class="uil-smile-wink"></i>
+                                                </a>
+                                                <a href="#" class="button primary" uk-tooltip="filter">
+                                                    <i class="uil-link-alt"></i>
+                                                </a>
+                                            </div>
+
+                                            <textarea id="chat-message-input" class="uk-textarea uk-width-expand" rows="5"
+                                                placeholder="Your Message" data-autoresize></textarea>
+
+                                            <button title="send" id="chat-message-submit" class="button primary uk-width-auto">
+                                                <i class="uil-plane"></i>
+                                            </button>
+
+                                        </form>
+
+                                    </div>
+
+                                    <!-- 
+                            <div class="message-reply">
+                                <textarea cols="1" rows="1" placeholder="Your Message" data-autoresize></textarea>
+                                <button class="btn primary ripple-effect">Send</button>
+                            </div>-->
+
+
+
+                                </div>
+                                <!-- Message Content -->
+
+                            </div>
+                        </div>
+                        <!-- chats Container / End -->
+
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+{% endblock %}
+
+{% block javascriptcodes %}
+ <script>
+         $(document).ready(function () {
+            let messages = $('.chatting-area');
+            {#console.log(messages.prop("scrollHeight"));#}
+            messages.animate({
+                scrollTop: messages.offset().top + 50
+            }, 'slow');
+        });
+
+        let friendId = {{ friend_id }};
+        let userId = {{ user_id }};
+
+        let chatSocket = new ReconnectingWebSocket(
+            'ws://' + window.location.host +
+            '/ws/chat/' + {{friend_id}} + '/');
+
+        chatSocket.onopen = function (e) {
+            fetchMessages();
+        };
+        chatSocket.onmessage = function (e) {
+            let data = JSON.parse(e.data);
+            if (data['command'] === 'messages') {
+                for (let i = 0; i < data['messages'].length; i++) {
+                    createMessage(data['messages'][i]);
+                }
+            } else if (data['command'] === 'new_message') {
+                createMessage(data['message']);
+            } else if (data['command'] === 'typing_start') {
+                if(data['id'] != userId){
+                    $("#typing"+userId).html('<div class="message-bubble">'+
+                                            '<div class="message-bubble-inner">'+
+                                                '<div class="message-avatar">'+
+                                                '<img src={% static "assets/images/avatars/avatar-2.jpg" %} alt="" />'+
+                                                '</div>'+
+                                                '<div class="message-text w-auto uk-flex">'+ data["message"] + 'is typing' +
+                                                    '<!-- Typing Indicator -->'+
+                                                    '<div class="typing-indicator">'+
+                                                        '<span></span>'+
+                                                        '<span></span>'+
+                                                        '<span></span>'+
+                                                    '</div>'+
+                                                '</div>'+
+                                            '</div>'+
+                                            '<div class="uk-clearfix"></div>'+
+                                        '</div>');
+                }else{
+                    $("#typing"+friendId).html(htmldata);
+                }
+                
+            } else if (data['command'] === 'typing_stop') {
+                $("#typing"+userId).html('');
+            }
+        };
+
+        $('#chat-message-input').on("focusin", function () {
+            {#chatSocket.emit("typing", userId);#}
+            chatSocket.send(JSON.stringify({
+                'command': 'typing_start',
+                'from': userId,
+            }));
+        });
+
+        $('#chat-message-input').on("focusout", function () {
+            setTimeout(() => {
+                chatSocket.send(JSON.stringify({
+                    'command': 'typing_stop',
+                }));
+            }, 300);
+        });
+
+        {% comment %}chatSocket.ontyping = function (data) {
+            console.log(data);
+        };{% endcomment %}
+
+        chatSocket.onclose = function (e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        document.querySelector('#chat-message-input').onkeyup = function (e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#chat-message-submit').click();
+            }
+        };
+
+        document.querySelector('#chat-message-submit').onclick = function (e) {
+            let messageInputDom = document.getElementById('chat-message-input');
+            let message = messageInputDom.value;
+            chatSocket.send(JSON.stringify({
+                'command': 'new_message',
+                'message': message,
+                'from': userId,
+                'friend': friendId
+            }));
+
+            messageInputDom.value = '';
+
+            let messages = $('#messages');
+            messages.animate({
+                scrollTop: messages.offset().top + 50
+            }, 1000);
+        };
+
+        function fetchMessages() {
+            chatSocket.send(JSON.stringify({'command': 'fetch_messages', 'author': userId, 'friend': friendId}));
+        }
+
+        function createMessage(data) {
+            let author = data['author'];
+            let user_class = "";
+            if (author == userId) {
+                user_class = "me";
+            } else {
+                user_class = "you";
+            }
+
+            let message = `<li class="${user_class}">
+                                <figure><img src="{{MEDIA_URL}}profileImages/{{request.user.profileImage}}" height="100px" width="100px" alt=""></figure>
+                                ${user_class}<p>${data.content}</p>
+                            </li>`;
+
+            $('.chatting-area').append(message);
+        }
+    </script>
+{% endblock  %}

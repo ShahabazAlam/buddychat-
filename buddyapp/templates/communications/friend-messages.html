@@ -1,0 +1,419 @@
+{% extends 'buddyapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="main_content">
+
+            <div class="main_content_inner pt-0" style="width:90%; max-width: 1300px;">
+
+                <div class="uk-grid-collapse" uk-grid>
+                    <div class="uk-width-2-4@m">
+
+                        <div class="chats-container margin-top-0">
+
+                            <div class="chats-container-inner ">
+
+                                <!-- chats -->
+                                <div class="chats-inbox">
+                                    <div class="chats-headline">
+                                        <div class="input-with-icon">
+                                            <input class="uk-input" type="text" placeholder="Search">
+                                        </div>
+                                    </div>
+
+                                    <ul class="f_list">
+                                
+                                </ul>
+                            </div>
+                                <!-- chats / End -->
+
+                                <!-- Message Content -->
+                                <div class="message-content">
+
+                                    <div class="chats-headline">
+
+                                        <div class="uk-flex">
+                                            <img src="assets/images/avatars/avatar-3.jpg" width="40px"
+                                                class="uk-border-circle" alt="">
+                                            <h4 class="ml-2">
+                                                {% if data.f_first_name and data.f_last_name %}
+                                                    {{data.f_first_name | title}} {{data.f_last_name | title}}
+                                                {% endif %}
+                                                <span id="friend_status{{data.u_id}}"></span> 
+                                            </h4>
+                                        </div>
+
+                                        <div class="message-action pull-right">
+                                            <a href="#" uk-tooltip="filter">
+                                                <i class="uil-outgoing-call"></i>
+                                            </a>
+                                            <a href="#" uk-tooltip="filter">
+                                                <i class="uil-video"></i>
+                                            </a>
+                                            <a href="#" uk-tooltip="More">
+                                                <i class="uil-ellipsis-h"></i>
+                                            </a>
+                                            <div
+                                                uk-dropdown="pos: down ; mode: click ;animation: uk-animation-slide-bottom-small">
+                                                <ul class="uk-nav uk-dropdown-nav">
+                                                    <li><a href="javascript:void(0)" id="deleteConversation"> Delete</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <!-- Message Content Inner -->
+                                    <div class="message-content-inner">
+                                    
+                                        <!-- Time Sign -->
+                                        <div class="chatting-area" style="overflow-y:auto;overflow-x: hidden;height:330px">
+                                        </div>
+                                        <div class="typing{{data.f_id}}{{data.u_id}}"></div>
+                                    </div>
+                                    <!-- Message Content Inner / End -->
+
+                                    <!-- Reply Area -->
+                                    <div class="message-reply">
+                                            <div class="uk-flex uk-flex-middle mr-3 uk-width-auto">
+                                                <a href="#" class="button primary mr-2" uk-tooltip="filter">
+                                                    <i class="uil-smile-wink"></i>
+                                                </a>
+                                                <a href="#" class="button primary" uk-tooltip="filter">
+                                                    <i class="uil-link-alt"></i>
+                                                </a>
+                                            </div>
+
+                                            <textarea id="chat-message-input{{request.user.id}}" class="uk-textarea uk-width-expand" rows="5"
+                                                placeholder="Your Message" data-autoresize></textarea>
+
+                                            <button title="send" id="chat-message-submit{{request.user.id}}" class="button primary uk-width-auto">
+                                                <i class="uil-plane"></i>
+                                            </button>
+
+                                    </div>
+
+                                    <!-- 
+                            <div class="message-reply">
+                                <textarea cols="1" rows="1" placeholder="Your Message" data-autoresize></textarea>
+                                <button class="btn primary ripple-effect">Send</button>
+                            </div>-->
+
+
+
+                                </div>
+                                <!-- Message Content -->
+
+                            </div>
+                        </div>
+                        <!-- chats Container / End -->
+
+
+                    </div>
+                </div>
+
+            </div>
+{% endblock %}
+
+{% block javascriptcodes %}
+ <script>
+
+
+
+$(document).ready(function () {
+    setTimeout(function() {
+    var my_id = "{{request.user.id}}";
+    var html='';
+// fetch friend list for chat
+         $.ajax({
+            url:'/messages/friendlist/'+my_id,
+            type:'GET',
+            success:(function(data) {
+                friend = eval(data)
+                for(var i in friend)
+                {
+                    html += '<li data="'+friend[i].id+'">'+
+                                '<a href="/messages/'+friend[i].id+'">'+
+                                    '<div class="message-avatar"><i id="status'+friend[i].id+'"></i>';
+                                                if(friend[i].profileImage){
+                                                html += '<img src="{{MEDIA_URL}}profileImages/'+friend[i].profileImage+'" alt="not found">';
+                                                }
+                                            else
+                                            {
+                                                if(friend[i].gender == 'male' || friend[i].gender == 'Male'){
+                                                    html += '<img src= {% static "gender/male.jpg" %} alt="">';
+                                                }else{
+                                                    html += '<img src= {% static "gender/female.jpg" %} alt="">';
+                                                }
+                                            }
+                                            
+                                        html += '</div>'+
+                                    '<div class="message-by">'+
+                                        '<div class="message-by-headline">'+
+                                            '<h5>'+ friend[i].first_name +' '+ friend[i].last_name +'</h5>'+
+                                            '<span id="last_seen'+friend[i].id+'"></span>'+
+                                        '</div>'+
+                                        '<p id="last_msg'+friend[i].id+'"></p>'+
+                                    '</div>'+
+                                '</a>'+
+                            '</li>';
+                        fetchLastMsg(friend[i].id)
+                        }
+                $('.f_list').html(html)
+                /// check user online offline status
+                
+                for( var i in friend){
+                    checkOnline(friend[i].id,my_id)
+                    }
+            })
+    })
+},1000);
+//end fetch friends
+// fetch last message
+function fetchLastMsg(id){
+    var url = '/messages/last-message/'
+    $.get(url,{'id':id},function(data){
+        if(data != 'None'){
+            $("#last_msg"+id).text(data)
+        }
+        else{
+            $("#last_msg"+id).text('Click to start conversation')
+        }
+        
+    })
+}
+
+//end fetch last message
+//delete conversation
+$("#deleteConversation").on('click',function(){
+    var url = '/messages/delete-converstion/'
+    $.get(url,{'f_id':'{{data.f_id}}'},function(data){
+        if(data == 'success'){
+            window.location.href = '/messages/'
+        }
+        
+    })
+})
+// end
+//chatting web socket
+    var url = window.location.pathname
+    var arr = url.split('/');
+    if (url.length > 2 && arr[2] == '') 
+    {
+       $('.chatting-area').html(`<center><h1>Select friend to start chat</h1></center>`)
+       $('.message-reply').hide() 
+    }else{
+           $("html, body").animate({ scrollTop: $('html, body').get(0).scrollHeight },500); 
+
+let friendId = '{{data.f_id}}'
+let userId = '{{data.u_id}}'
+let f_dp ='{{data.f_dp}}'
+let f_gender = '{{data.f_gender}}'
+let u_gender = '{{data.u_gender}}'
+let u_dp = '{{data.u_dp}}'
+
+            let chatSocket = new ReconnectingWebSocket(
+            'ws://' + window.location.host +
+            '/ws/chat/' + friendId + '/');
+
+        chatSocket.onopen = function (e) {
+            fetchMessages();
+        };
+        chatSocket.onmessage = function (e) {
+            let data = JSON.parse(e.data);
+            if (data['command'] === 'messages') {
+                for (let i = 0; i < data['messages'].length; i++) {
+                    createMessage(data['messages'][i]);
+                }
+            } else if (data['command'] === 'new_message') {
+                createMessage(data['message']);
+            } else if (data['command'] === 'typing_start') {
+                if(data['d_p'] != null){
+                    d_p = '<img src="{{MEDIA_URL}}profileImages/'+data['d_p']+'"  alt="" />';
+                }
+                else{
+                    if(data['gender'] != "male"){
+                        d_p = '<img src="{%static "gender/female.jpg" %}"  alt="" />';
+                    }
+                    else{ d_p = '<img src="{%static "gender/male.jpg" %}"  alt="" />'; }
+                }
+                var divId = '';
+                if(data['id'] == userId)
+                {
+                   divId = userId.toString()+friendId.toString();
+                }
+                else if(data['id'] == friendId){                    
+                    divId = friendId.toString()+userId.toString();
+                }
+                $('.typing'+divId).html('<div class="message-bubble">'+
+                                            '<div class="message-bubble-inner">'+
+                                                '<div class="message-avatar">'+d_p+
+                                                '</div>'+
+                                                '<div class="message-text w-auto uk-flex">'+ data["message"] + ' is typing' +
+                                                    '<!-- Typing Indicator -->'+
+                                                    '<div class="typing-indicator">'+
+                                                        '<span></span>'+
+                                                        '<span></span>'+
+                                                        '<span></span>'+
+                                                    '</div>'+
+                                                '</div>'+
+                                            '</div>'+
+                                            '<div class="uk-clearfix"></div>'+
+                                        '</div>');
+                
+            } else if (data['command'] === 'typing_stop') {
+                $(".typing"+friendId.toString()+userId.toString()).html('');
+            }
+        };
+
+        $('#chat-message-input'+userId).on("keypress", function () {
+            {#chatSocket.emit("typing", userId);#}
+            chatSocket.send(JSON.stringify({
+                'command': 'typing_start',
+                'from': userId,
+            }));
+        });
+
+        $('#chat-message-input'+userId).on("keyup", function () {
+            setTimeout(() => {
+                chatSocket.send(JSON.stringify({
+                    'command': 'typing_stop',
+                }));
+            }, 600);
+        });
+
+        {% comment %}chatSocket.ontyping = function (data) {
+            console.log(data);
+        };{% endcomment %}
+
+        chatSocket.onclose = function (e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        document.querySelector('#chat-message-input'+userId).onkeyup = function (e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#chat-message-submit'+userId).click();
+            }
+        };
+
+        document.querySelector('#chat-message-submit'+userId).onclick = function (e) {
+            let messageInputDom = document.getElementById('chat-message-input'+userId);
+            let message = messageInputDom.value;
+            if(message){
+            chatSocket.send(JSON.stringify({
+                'command': 'new_message',
+                'message': message,
+                'from': userId,
+                'friend': friendId
+            }));
+            }
+            messageInputDom.value = '';
+            
+        };
+
+        function fetchMessages() {
+            chatSocket.send(JSON.stringify({'command': 'fetch_messages', 'author': userId, 'friend': friendId}));
+        }
+
+        function createMessage(data) {
+            let author = data['author'];
+            let user_class = "";
+            let opt =''
+            let show_time = ''
+            if (author == userId) {
+                user_class = "message-bubble me";
+                opt = 'right';
+                show_time = 'pull-left'
+                if(u_dp != 'None'){
+                    d_p = '<img src="{{MEDIA_URL}}profileImages/'+u_dp+'"  alt="" />';
+                }
+                else{
+                    if(u_gender != "male"){
+                        d_p = '<img src="{%static "gender/female.jpg" %}"  alt="" />';
+                    }
+                    else{ d_p = '<img src="{%static "gender/male.jpg" %}"  alt="" />'; }
+                }
+            } else {
+                show_time = 'pull-right'
+                opt = 'left';
+                user_class = "message-bubble";
+                if(f_dp != 'None'){
+                    d_p = '<img src="{{MEDIA_URL}}profileImages/'+f_dp+'"  alt="" />';
+                }
+                else{
+                    if(f_gender != "male"){
+                        d_p = '<img src="{%static "gender/female.jpg" %}"  alt="" />';
+                    }
+                    else{d_p = '<img src="{%static "gender/male.jpg" %}"  alt="" />'; }
+                }
+
+            } 
+
+            var m_time = timeAgo(data.timestamp);
+            let message = `<li id="list_id${data.m_id}" class="${user_class}">
+                            <div class="message-bubble-inner">
+                                <div class="message-avatar">${d_p}</div>
+                                <div class="message-text">
+                                    <p>${data.content}</p>
+                                    <small style= "font-size:12px;color:#00FA9A;" class="${show_time}">${m_time}</small>
+                                    <small class="message-readed"id="m_time${data.friend}"></small>
+                                </div> 
+                                <div class="dropdown-option-nav"uk-dropdown="pos: bottom-${opt} ;mode : click ;animation: uk-animation-slide-bottom-small">
+                                        <ul>
+                                            <li>
+                                               <span style="color:red"> <i class="uil-delete"></i><a href="javascript:void(0)" onclick="delete_message(${data.m_id})">Delete</a></span>
+                                            </li>
+                                        </ul>
+                                </div>
+                            </div>
+                            <div class="uk-clearfix"></div>
+                        </li>`;
+            $('.chatting-area').append(message);
+           
+            $('.chatting-area').animate({
+                scrollTop: $('.chatting-area').offset().top + $('.chatting-area')[0].scrollHeight
+            },0);
+        }
+    }
+});
+
+// checkOnline function
+function checkOnline(id,user_id)
+{
+    $.ajax({
+            url:'/messages/check-online/',
+            type:'GET',
+            data: {'id':id},
+            success:(function(data) {
+              if(data.status == 'online'){
+                  $('#status'+id).attr('class','status-icon status-online')
+                  $('#friend_status'+user_id).html('online ')     
+                }
+                else
+                {  
+                    time = new Date(data.last_echo);
+                    $('#status'+id).attr('class','status-icon status-offline') 
+                   
+                    
+                    }
+            })
+    })
+}
+// delete message
+function delete_message(id){
+     $.ajax({
+            url:'/messages/delete-message/',
+            type:'GET',
+            data: {'id':id},
+            success:(function(data) {
+              if(data.message == 'success'){
+                  $("#list_id"+id).fadeOut()
+                }
+            })
+    })
+
+    
+}
+
+</script>
+{% endblock  %}

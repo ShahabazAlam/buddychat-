@@ -1,0 +1,1394 @@
+{% extends 'buddyapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="main_content">
+            <div class="main_content_inner pt-0">
+                <div class="profile">
+                    <div class="profile-cover">
+
+                        <!-- profile cover -->
+                        {% if user_data.coverImage %}
+                         <img id="frame_cover" src="{{MEDIA_URL}}coverImages/{{user_data.coverImage}}" alt="not found">
+                        {% else %}
+                          <img id="frame_cover" src="{% static 'gender/cover.jpg' %}" alt="not found">
+                        {% endif %}
+                            {% if user_data.email == user.email %}
+                             <input type='file' onChange="save_Cover_Pic()" id='coverImage' style="display:none">
+                                <a href="#" id="cover_pic" data-btn="cover_id"> <i class="uil-camera"></i> Edit </a>
+                        {% endif %}
+                    </div>
+                    <div class="profile-details">
+                        <div class="profile-image">
+                        {% if user_data.profileImage %}
+                            <img id="frame_dp" src="{{MEDIA_URL}}profileImages/{{user_data.profileImage}}" alt="">
+                        {% else %}
+                            {% if user_data.gender == 'male' %}
+                                <img id="frame_dp" src="{% static 'gender/male.jpg' %}" alt="">
+                            {% else %}
+                                <img id="frame_dp" src="{% static 'gender/female.jpg' %}" alt="">
+                            {% endif %}
+                        {% endif %}
+                            {% if user_data.email == user.email %}
+                               <a href="#" id="profie_pic" data-btn="profile_id"> </a>
+                                <input type='file' onChange="save_Profile_Pic()" id='profileImage' style="display:none">    
+                             {% endif %}     
+                        </div>
+                        <div class="profile-details-info">
+                        <h1>{{user_data.first_name|title}} {{user_data.last_name|title}}</h1>
+                        </div>
+                    </div>
+
+
+                    <div class="nav-profile" uk-sticky="offset:61;media : @s">
+                        <div class="py-md-2 uk-flex-last" id="friend-btn">
+                        <!--friend button-->
+                        </div>
+                        <div>
+                            <nav class="responsive-tab">
+                                <ul>
+                                    <li class="uk-active"><a class="active" href="#">Timeline</a></li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="section-small">
+
+                    <div uk-grid>
+
+                        <div class="uk-width-2-3@m fead-area">
+
+                            <div class="post-new" uk-toggle="target: body ; cls: post-focus">
+                                <div class="post-new-media">
+                                    <div class="post-new-media-user">
+                                        {% if user_data.profileImage %}
+                                            <img src="{{MEDIA_URL}}profileImages/{{user_data.profileImage}}" alt="not found">
+                                        {% else %}
+                                            {% if user_data.gender == 'male' %}
+                                                <img src="{% static 'gender/male.jpg' %}" alt="">
+                                            {% else %}
+                                                <img src="{% static 'gender/female.jpg' %}" alt="">
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                    <div class="post-new-media-input">
+                                        <input type="text" class="uk-input" placeholder="What's Your Mind ?" id = 'body'>
+                                    </div>
+                                </div>
+                                <hr>
+                                 <div class="post-new-type">
+
+                                    <a id="selectImage" href="javascript:void(0);">
+                                        <img src={% static "assets/images/icons/photo.png" %}  alt="">
+                                        Photo/Video
+                                    </a>
+                                    <input type="file"  name="images[]" multiple id="imageUpload" style="display:none"> 
+                                    <select id="status" class="button outline-light circle" type="button" style="
+                                        border-color: #e6e6e6;  border-width: 1px;  " >
+                                    <option class="uk-nav uk-dropdown-nav uk-active" value="Every one">Every one</option>
+                                    <option class="uk-nav uk-dropdown-nav" value="Friends"> Friends </option>
+                                    <option class="uk-nav uk-dropdown-nav" value="Only me">Only me</option>
+                                </select>
+                                <div><a href="javascript:void(0);" id="sharePost" style="margin-left:30px" class="button success small pull-right"> Share </a>
+                                </div>
+                                </div>
+                            </div> 
+                             <!--   Alert message       -->
+                            <h3 id="uploadingMessage" style="display:none"></h3>
+                            <div id="message_div" style=" padding:20px;color: white; display:none">
+                                <strong><span id="message"></span></strong>
+                            </div>
+
+                <!-- close -->     
+                        <div id ="posts">
+                        <!-- Posts-->
+                        </div>
+                                              
+                        </div>
+
+                        <!-- sidebar -->
+                        <div class="uk-width-expand ml-lg-2">
+                            <h3> About </h3>
+                        {% if user.gender %}                           
+                            <div class="list-group-items gender">
+                                <i class="uil-user"></i>
+                                    <h5> Gender: <span> {{user.gender|title}}</span> </h5>
+                            </div>
+                        {% endif %}
+                        {% if users.work_at %}
+                            <div class="list-group-items">
+                                <i class="uil-bag-alt"></i>
+                                <h5> Work: <span>{{users.work_at|title}}</span> </h5>                               
+                            </div>
+                        {% endif %}
+
+                        {% if users.dob %}
+                            <div class="list-group-items">
+                                <i class="uil-calendar-alt"></i>                                
+                                <h5> DOB: <span> {{users.dob}} </span> </h5>
+                            </div>
+                        {% endif %}
+
+                        {% if user.lives_in %}
+                            <div class="list-group-items">
+                                <i class="uil-home-alt"></i>
+                                <h5> Live in <span> {{users.lives_in|title}}</span> </h5>
+                            </div>
+                        {% endif %}
+
+                            <div class="list-group-items">
+                                <i class="uil-location-point"></i>
+                                {% if users.hometown %}
+                                    <h5> From <span> {{users.hometown|title}}</span> </h5>
+                                {% endif %}
+                            </div>
+
+                            <div class="list-group-items">
+                                <i class="uil-heart"></i>
+                                {% if users.relationship %}
+                                    <h5> in a <span> {{users.relationship|title}} </span> </h5>
+                                {% endif %}
+                            </div>
+
+                            {% if user.email == u.email %}
+                            <a href="#" class="button success block my-3"> edit </a>
+                            {% endif %}
+
+                            <hr class="mt-3 mb-0">
+
+                            <div class="section-header">
+                                <div class="section-header-left">
+                                    <h3 class="mb-0"> Friends </h3>
+                                    <p class="uk-text-small"><span id="friendsCount"></span> friends</p>
+                                </div>
+                                <div class="section-header-right">
+                                    <a href="/friends/see_all/{{user_data.id}}" class="see-all text-primary"> See all</a>
+                                </div>
+                            </div>
+                        <hr>
+                            <div id="friends_card" class="uk-child-width-1-3 uk-grid-small uk-grid-match" uk-grid>
+                           <!-- Friends Card-->
+                           
+                            </div>
+
+                            <a href="/friends/see_all/{{user_data.id}}" class="button secondary block my-3"> See All </a>
+
+                            <hr class="mt-3 mb-0">
+
+                            <div class="section-header">
+                                <div class="section-header-left">
+                                    <h3> Photos </h3>
+                                </div>
+                                <div class="section-header-right">
+                                    <a href="/profile/all-photos/{{user_data.id}}" class="see-all text-primary"> See all</a>
+                                </div>
+                            </div>
+
+                            <div class="uk-child-width-1-3 uk-grid-collapse uk-overflow-hidden"
+                                style="border-radius: 16px;" uk-grid>
+                                {% for imagevideos in imagevideos %}
+                                {% if ".jpg" in imagevideos.thumbnail or ".png" in imagevideos.thumbnail or ".bmp" in imagevideos.thumbnail or ".gif" in imagevideos.thumbnail or ".jpeg" in imagevideos.thumbnail %}
+                                    <div> 
+                                        <a href="javascript:void(0);">
+                                            <div class="photo-card small" data-src="{{MEDIA_URL}}postThumbnail/{{imagevideos.thumbnail}}" uk-img>
+                                            </div>
+                                        </a>
+                                    </div>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+
+                            <div class="section-header">
+                                <div class="section-header-left">
+                                    <h3> Videos </h3>
+                                </div>
+                                <div class="section-header-right">
+                                    <a href="/profile/all-videos/{{user_data.id}}"  class="see-all text-primary"> See all</a>
+                                </div>
+                            </div>
+
+                            <div class="uk-child-width-1-3 uk-grid-collapse uk-overflow-hidden"
+                                style="border-radius: 16px;" uk-grid>
+                                {% for imagevideos in imagevideos %}
+                                {% if ".m4v" in imagevideos.thumbnail or ".avi" in imagevideos.thumbnail or ".mp4" in imagevideos.thumbnail or ".mp4" in imagevideos.thumbnail or ".webm" in imagevideos.thumbnail %}
+                                        <div style="margin-left:5px;margin-top:5px">
+                                            <video class="rounded" controls><source src="{{MEDIA_URL}}postThumbnail/{{imagevideos.thumbnail}}"></video>
+                                        </div>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+
+
+                            <hr class="mt-3 mb-2">   
+                            <div class="section-header">
+                                <div class="section-header-left">
+                                    <h3> Profile Images </h3>
+                                </div>
+                                <div class="section-header-right">
+                                    <a href="/profile/all-profilepics/{{user_data.id}}"  class="see-all text-primary"> See all</a>
+                                </div>
+                            </div>
+
+                            <div class="uk-child-width-1-3 uk-grid-collapse uk-overflow-hidden"
+                                style="border-radius: 16px;" uk-grid>
+                                {% for profilePic in profilePics %}
+                                <div> 
+                                    <a href="javascript:void(0);">
+                                        <div class="photo-card small" data-src="{{MEDIA_URL}}profileImages/{{profilePic.profileImage}}" uk-img>
+                                        </div>
+                                    </a>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <hr class="mt-3 mb-2">   
+                            <div class="section-header">
+                                <div class="section-header-left">
+                                    <h3> Cover Images </h3>
+                                </div>
+                                <div class="section-header-right">
+                                    <a href="/profile/all-coverpics/{{user_data.id}}" class="see-all text-primary"> See all</a>
+                                </div>
+                            </div>
+
+                            <div class="uk-child-width-1-3 uk-grid-collapse uk-overflow-hidden"
+                                style="border-radius: 16px;" uk-grid>
+                                {% for coverPic in coverPics %}
+                                <div> 
+                                    <a href="javascript:void(0);">
+                                        <div class="photo-card small" data-src="{{MEDIA_URL}}coverImages/{{coverPic.coverImage}}" uk-img>
+                                        </div>
+                                    </a>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        <hr class="mt-3 mb-2">                           
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}
+{% block javascriptcodes %}
+<script>
+function checkFriendOrNot(){
+var user = '{{user_data.id}}';
+var url ='/profile/check-friend-or-not/'
+    $.get( 
+        url, { 
+            'user' : user 
+        }, 
+        function(data) { 
+            if(data['friend'] == 'friend'){
+                $("#friend-btn").html(`<a class="button small danger" id="unfriend" href="javascript:void(0)" style="margin-right:20px"><i class="uil-user"></i>Unfriend</a>
+                        <a class="button small warning" href="/messages/{{user_data.id}}"><i class="uil-envelop"></i>Message</a>`)
+            }else if(data['requested'] == 'requested'){
+                if(data['user_id'] == '{{request.user.id}}'){
+                    $("#friend-btn").html(`<a class="button small primary" id="cancelrequest" href="javascript:void(0)" style="margin-right:20px"><i class="uil-delete"></i>Cancle Request</a>`)
+                }else{
+                    $("#friend-btn").html(`<a class="button small primary" id="acceptrequest" href="javascript:void(0)" style="margin-right:20px"><i class="uil-delete"></i>Accept</a>
+                    <a class="button small warning" id="cancelrequest" href="javascript:void(0)">Cancel</a>`)
+                }
+            }else if(data['no'] == 'no'){
+                 $("#friend-btn").html(`<a class="button small primary" id="sendrequest" href="javascript:void(0)" style="margin-right:20px"><i class="uil-user-plus"></i>Add Friend</a>`)
+            }
+        });
+}
+
+$(document).on('click',"#unfriend",function(){
+        var con = $.confirm({
+            boxWidth: '25%',
+            useBootstrap:false,
+            title: 'Confirm!',
+            content: 'Really want to unfriend!',
+            buttons: {
+                Yes: function () {
+                        $.ajax({
+                        url:'/friends/unfriend/{{user_data.id}}',
+                        type:'GET',
+                        ContentType:false,
+                        ProcessData:false,
+                        cache:false,
+                        success:(function() {
+                            checkFriendOrNot()
+                        })
+                    })
+                },
+                No: function () {
+                    con.close()
+                }
+            }
+        });
+})
+$(document).on('click',"#cancelrequest",function(){
+    var con = $.confirm({
+            boxWidth: '25%',
+            useBootstrap:false,
+            title: 'Confirm!',
+            content: 'Really want to Cancel!',
+            buttons: {
+                Yes: function () {                        
+                    $.ajax({
+                            url:'/friends/cancel-request/{{user_data.id}}',
+                            type:'GET',
+                            ContentType:false,
+                            ProcessData:false,
+                            cache:false,
+                            success:(function() {
+                                checkFriendOrNot()
+                            })
+                    })
+                },
+                No: function () {
+                    con.close()
+                }
+            }
+        });
+})
+$(document).on('click',"#acceptrequest",function(){
+    var con = $.confirm({
+            boxWidth: '25%',
+            useBootstrap:false,
+            title: 'Confirm!',
+            content: 'Really want to add!',
+            buttons: {
+                Yes: function () {                        
+                    $.ajax({
+                            url:'/friends/accept-request/{{user_data.id}}',
+                            type:'GET',
+                            ContentType:false,
+                            ProcessData:false,
+                            cache:false,
+                            success:(function() {
+                            checkFriendOrNot()
+                        })
+                    })
+                },
+                No: function () {
+                    con.close()
+                }
+            }
+        });
+})
+$(document).on('click',"#sendrequest",function(){
+    $.ajax({
+            url:'/friends/send-request/{{user_data.id}}',
+            type:'GET',
+            ContentType:false,
+            ProcessData:false,
+            cache:false,
+            success:(function() {
+                checkFriendOrNot()
+            })
+    })
+})
+    $("#profie_pic").click(function(){
+            $("#profileImage").trigger('click');
+        });
+
+    $("#cover_pic").click(function(){
+            $("#coverImage").trigger('click');
+        });
+
+// save profile pic function
+    function save_Profile_Pic()
+    {
+        var formdata = new FormData(); 
+                var files = $('#profileImage')[0].files[0]; 
+                formdata.append('profileImage', files);
+                formdata.append('user', {{user.id}}); 
+       
+                $.ajax({ 
+                    url: '/profile/save_profile_pic/', 
+                    type: 'post', 
+                    data: formdata, 
+                    contentType: false, 
+                    processData: false, 
+                    success: function(response){ 
+                        if(response != 0){ 
+                           $("#frame_dp").attr('src',"{{MEDIA_URL}}profileImages/"+response) 
+                        } 
+                        else{ 
+                            alert('file not uploaded'); 
+                        } 
+                    }, 
+                }); 
+        }
+// save cover pic function
+    function save_Cover_Pic()
+    {
+         var formdata = new FormData(); 
+                var files = $('#coverImage')[0].files[0]; 
+                formdata.append('coverImage', files); 
+       
+                $.ajax({ 
+                    url: '/profile/save_cover_pic/', 
+                    type: 'post', 
+                    data: formdata, 
+                    contentType: false, 
+                    processData: false, 
+                    success: function(response){ 
+                        if(response != 0){ 
+                          $("#frame_cover").attr('src',"{{MEDIA_URL}}profileImages/"+response) 
+                        } 
+                        else{ 
+                            alert('file not uploaded'); 
+                        } 
+                    }, 
+                }); 
+        }
+
+$(document).ready(function(){
+    if('{{user_data.id}}' != '{{request.user.id}}'){checkFriendOrNot()}
+    // friend friends load function
+    getfriendlist()
+
+ function getfriendlist(){
+     var html =''
+     
+        $.ajax({ 
+            url: '/friends/friend_friends/'+"{{user_data.id}}", 
+            type: 'post',  
+            contentType: false, 
+            processData: false
+        }).done(function(response){ 
+            var data = eval(response);
+            $("#friendsCount").html(data.length)
+            if(data != '')
+            {
+            for(var i in data){
+                 html += '<div>'+
+                            '<a href="/profile/user_timeline/'+data[i].id+'" class="profile-friend-card">';
+                                if(data[i].imageProfile == ''){
+                                    html += '<div class="profile-friend-card-thumbnail">'+
+                                    '<img id="frame_dp" src="{{MEDIA_URL}}profileImages/'+data[i].profileImage+'"alt="Not Found"></div>';
+                                   }else{
+                                        if(data[i].gender == 'male'){
+                                            html += '<div class="profile-friend-card-thumbnail">'+
+                                              '<img src="{% static 'gender/male.jpg' %}" alt="Not Found"></div>';
+                                        }else{
+                                            html += '<div class="profile-friend-card-thumbnail">'+
+                                                '<img src="{% static 'gender/female.jpg' %}" alt="Not Found"></div>';
+                                        }
+                                   }
+                                html +=   '<div class="profile-friend-card-content">'+
+                                        '<h4>'+data[i].first_name +' '+ data[i].last_name+'</h4>'+
+                                    '</div>'+
+                                '</a>'+
+                            '</div>';
+                            }
+                    $('#friends_card').html(html)
+                } 
+             else
+                {
+                    html +='<h3>No Friend!</h3>'
+                    $("#friends_card").html(html)
+                }
+            }).fail(function() { 
+                    html +='<h3 style="color:red">Opps Something wrong! Try again</h3>'
+                    $("#friends_card").html(html)
+            }) 
+    }
+
+
+var user_id = {{request.user.id}}
+    // fecth fetchPosts
+        fetchPosts()
+
+
+    $("#selectImage").click(function(){
+        $("#imageUpload").trigger('click');
+    });
+
+// validate file
+ $("#imageUpload").on('change',function(){
+     ValidateSingleInput(this) 
+ })
+
+/////////
+    $("#sharePost").on('click',function(event){
+        event.preventDefault()
+        $(".post-new-btn-close").trigger('click')
+        var formdata = new FormData()
+        var body = $('#body').val()
+        var images = $("#imageUpload")[0].files.length;
+        var status = $("#status").val()
+        var page = '{{user_data.id}}'
+        formdata.append('page',page)
+        // file extension validation 
+        if(images != '')
+        {
+            for (var index = 0; index < images; index++) 
+                {
+                    formdata.append("images[]",$('#imageUpload')[0].files[index]);
+                }
+        }
+        // file extension validation completed
+        if(body != '')
+            {formdata.append('body',body)}
+        if(status != '')
+            {formdata.append('status',status)}
+        if((images || body) || (body && images ))
+            {
+                $('#uploadingMessage').val('Uploading...')
+                $('#uploadingMessage').show()
+
+                $.ajax({ 
+                    url: '/newsfeeds/post/', 
+                    type: 'post', 
+                    data: formdata,
+                    contentType: false, 
+                    processData: false
+                    }).done(function(response){  
+                            $('#body').val('')
+                            $('#imageUpload').val('')
+                            $('#videoUpload').val('')
+                            $('#status').val('')
+                            $('#uploadingMessage').hide()
+                            $("#message_div").css("background-color", "#3CB371");
+                            $("#message").html("Your story was posted Successfully!")
+                            fetchPosts()
+                            $("#message_div").slideDown(function() {
+                                setTimeout(function() {
+                                    $("#message_div").slideUp();
+                                    }, 5000)
+                                })
+                    }).fail(function(){
+                            $('#body').val('')
+                            $('#imageUpload').val('')
+                            $('#videoUpload').val('')
+                            $('#status').val('')
+                            $('#uploadingMessage').hide()
+                            $("#message_div").css("background-color", "#FFA500");
+                            $("#message").html("Faild to upload story!")
+                            $("#message_div").slideDown(function() {
+                                setTimeout(function() {
+                                    $("#message_div").slideUp();
+                                }, 5000);
+                            })
+                    }) 
+            }
+            else
+                {
+                    $("#message_div").css("background-color", "#FF4500");
+                            $("#message").html("Opps! You posted none!")
+                            $("#message_div").slideDown(function() {
+                                setTimeout(function() {
+                                    $("#message_div").slideUp();
+                                }, 5000);
+                            })
+                }
+    })
+
+var _validFileExtensions = [".jpg", ".jpeg", ".bmp", ".gif", ".png",".m4v", ".avi",".mpg",".mp4",".webm"];    
+function ValidateSingleInput(oInput) {
+    if (oInput.type == "file") {
+        var sFileName = oInput.value;
+         if (sFileName.length > 0) {
+            var blnValid = false;
+            for (var j = 0; j < _validFileExtensions.length; j++) {
+                var sCurExtension = _validFileExtensions[j];
+                if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
+                    blnValid = true;
+                    break;
+                    
+                }
+            }
+             
+            if (!blnValid) {
+                oInput.value = "";
+                $("#image_message_div").css("background-color", "#FFA500");
+                $("#error").html("Sorry, " + sFileName + " is invalid")
+                $("#image_message_div").slideDown(function()
+                    {
+                        setTimeout(function()
+                            {
+                                $("#image_message_div").slideUp();
+                            }, 7000)
+                    })
+                return false;
+            }
+        }
+    }
+    return true;
+}
+// fetch all post
+function fetchPosts()
+{
+        var page = '{{user_data.id}}'
+        $.ajax({ 
+            url: '/newsfeeds/fetch-posts/', 
+            type: 'get',
+            data:{'page_id':page},
+            datatype:'json'
+            }).done(function(response){
+              posts = JSON.parse(response)
+              var html = ''
+// start if 
+             if(posts != '')
+            {
+              for(var i in posts)
+                {
+                    html += '<div class="post" id ="post'+posts[i].id+'">'+
+                                '<div class="post-heading">'+
+                                    '<div class="post-avature">'
+                                    if(posts[i].user__profileImage)
+                                    {
+                                        html +='<img id="frame_dp" src="{{MEDIA_URL}}profileImages/'+ posts[i].user__profileImage +'" alt="Not Found">'
+                                    }else
+                                    {
+                                        if(posts[i].user__gender == 'male')
+                                        {
+                                            html += '<img src="{% static 'gender/male.jpg' %}" alt="Not Found">'
+                                        }else
+                                        {
+                                            html +='<img src="{% static 'gender/female.jpg' %}" alt="Not Found">'
+                                        }
+                                    }   
+                            html += '</div>'+
+                                    '<div class="post-title">'+
+                                        '<h4>'+ posts[i].user__first_name +' '+ posts[i].user__last_name + '<span id="friend_name"></span></h4>'+
+                                        '<p>'+posts[i].updated_at + '<i class="uil-users-alt"></i> </p>'+
+                                    ' </div>'
+                                    if(posts[i].user__id == user_id)
+                                     {
+                            html += '<div class="post-btn-action">'+
+                                        '<span class="icon-more uil-ellipsis-h"></span>'+
+                                        '<div class="mt-0 p-2" uk-dropdown="pos: bottom-right;mode:hover ">'+
+                                            '<ul class="uk-nav uk-dropdown-nav">'+
+                                                '<li><a href="javascript:void(0);" data-id="'+posts[i].id+'" id="edit_post'+posts[i].id+'"> <i class="uil-edit-alt mr-1"></i> Edit Post </a></li>'+
+                                                '<li><a href="javascript:void(0);" data-id="'+posts[i].id+'" id="disable_comment'+posts[i].id+'"> <i class="uil-comment-slash mr-1"></i><span id="e_d_comment'+posts[i].id+'"></span></a></li>'+
+                                                '<li><a href="javascript:void(0);" class="text-danger" data-id="'+posts[i].id+'" id="delete_post'+posts[i].id+'"> <i class="uil-trash-alt mr-1"></i> Delete </a></li>'+
+                                            '</ul>'+
+                                        '</div>'+
+                                    '</div>'
+                                     }
+                            html += '</div>'+
+                                '<div class="post-description">'
+                                    if(posts[i].body)
+                                    {
+                                        html += '<p id="body_text'+posts[i].id+'">'+posts[i].body+'<hr></p>'
+                                    }
+                                html += '<div class="uk-grid-small" uk-grid>'+
+                                            '<div class="uk-width-1-1@m">'
+                                            if(posts[i].thumbnail)
+                                            {
+                                                if ( posts[i].thumbnail.toString().endsWith(".jpg" || ".jpeg" || ".bmp" || ".gif" || ".png" )) {
+                                                    html += '<img src="{{MEDIA_URL}}postThumbnail/'+posts[i].thumbnail+'" class="rounded" alt="Not Found">'
+                                                    } else{
+                                                    html += '<video width="580" height="400" class="rounded" controls><source src="{{MEDIA_URL}}postThumbnail/'+posts[i].thumbnail+'"></video>'
+                                                    }
+                                            }
+                                    html += '</div>'+
+                                            '<div class="uk-width-1-2@m uk-width-1-2">'+
+                                                '<img id="first_image'+posts[i].id+'" src="" class="rounded" alt="">'+
+                                            '</div>'+
+                                            '<div class="uk-width-1-2@m uk-width-1-2 uk-position-relative">'+
+                                                '<img src="" class="rounded" id="second_image'+posts[i].id+'" alt="">'+
+                                                '<div class="uk-position-center uk-light">'+
+                                                    '<a href="javascript:void(0);" id="more_image'+posts[i].id+'">'+
+                                                    '</a></div>'+
+                                            '</div>'+ 
+                                    '</div>'+
+                                    '<div class="post-state-details">'+
+                                        '<div>'+
+                                            '<a href="javascript:void(0);" data-id="'+posts[i].id+'" id="liked_people'+posts[i].id+'" ><img src={% static "assets/images/icons/reactions_like.png" %} alt=""></a>'+
+                                            ' <p id="nol'+ posts[i].id +'"></p>'+
+                                        '</div>'+
+                                    '</div>'+
+                                '</div>'+
+                                '<div class="post-state">'+
+                                    '<div class="post-state-btns" data-id="'+posts[i].id+'"  id="like_button'+posts[i].id+'"> <i class="uil-thumbs-up"></i><span id="checkLike'+posts[i].id+'"></span></div>'+
+                                    '<div class="post-state-btns" style="display:none" data-id="'+posts[i].id+'"  id="e_comment_button'+posts[i].id+'"> <i class="uil-heart"></i><span id="noc'+posts[i].id+'"> </span><span id="c_title'+posts[i].id+'"></span></div>'+
+                                    '<div class="post-state-btns" style="display:none" id="d_comment_button'+posts[i].id+'"> <i class="uil-comment-slash"></i><span id="noc'+posts[i].id+'"> </span><span id="d_title'+posts[i].id+'"></span></div>'+
+                                '</div>'+
+                                    '<div class="post-comments" >'+
+                                    '<div style="display:none" id="comment_div'+posts[i].id+'">'+
+                                    '</div>'+
+                                    '<div style="display:none" id="comment_form_div'+posts[i].id+'">'+
+                                        '<div class="post-add-comment">'+
+                                                '<div class="post-add-comment-avature">'+
+                                                '</div>'+
+                                                '<div class="post-add-comment-text-area">'+
+                                                    '<input type="text" id="comment_body'+posts[i].id+'" placeholder="Write your comment...">'+
+                                                    '<div class="icons">'+
+                                                        '<span class="uil-grin"></span>'+
+                                                        '<span class="uil-image" id="comment_image_button'+posts[i].id+'"></span>'+
+                                                            '<input type="file" hidden id="comment_image'+posts[i].id+'">'+
+                                                        '<span id="comment_text'+posts[i].id+'" data-id="'+posts[i].id+'" class="uil uil-plus mr-1"><span>'+
+                                                '</div>'+                                        
+                                            '</div>'+
+                                        '</div>'+
+                                    '</div>'+
+                                '<span id="comment_message'+posts[i].id+'" style="display:none;color:green" ><small>Posting comment...</small></span>'+
+                            '<div >'+
+                        '</div>'+
+                    '</div>';
+                if(posts[i].page != posts[i].user__id){friendName(posts[i].page)}
+                fetchGallery(posts[i].id)
+                fetchNOLandNOC(posts[i].id)
+                checkLiked(posts[i].id)
+                commentEnableDisable(posts[i].id)
+                $('#posts').html(html)
+                        
+                }
+    // loop for actions comment likes
+                for(var i in posts)
+                {
+                    
+                    $("#e_comment_button"+posts[i].id).on('click',function()
+                    {
+                        var id = $(this).attr("data-id")  
+                        //adding show more link and comment form for comment 
+                        show_more = '<a href="javascript:void(0);" id="more-comments'+id+'"  class="view-more-comment"> Load more Comments</a>';
+                            $("#comment_div"+id).prepend(show_more) 
+
+
+                        //Load comments on comment_div button
+                        $("#comment_div"+id).slideToggle( "slow", function()
+                        {
+                            if($("#comment_div"+id).is(":visible"))
+                            {  
+                                $("#comment_form_div"+id).show()
+                                noc = 1  
+                                fetchComments(id,noc)
+                                // fetch more comments function
+                                $('#more-comments'+id).on('click',function(){
+                                    noc = noc + 5
+                                    fetchComments(id,noc)
+                                })
+                            }
+                            else
+                            {
+                                $("#comment_form_div"+id).hide()
+                                $("#comment_body"+id).val('')
+                                allComments=''
+                                $("#comment_div"+id).html(allComments)
+                            }
+                        })
+                    })                                    
+                    // filebutton trigger
+                    $("#comment_image_button"+posts[i].id).on('click',function(){
+                        $("#comment_image"+posts[i].id).trigger('click')
+                    })
+                    // calling comment function on click comment button
+                    $("#comment_text"+posts[i].id).on('click',function(){
+                        var id = $(this).attr("data-id")
+                        var comment_image = $("#comment_image"+posts[i].id)[0].files[0]
+                        var content = $("#comment_body"+id).val()
+                        var formdata = new FormData()
+                        if(comment_image != '')
+                            {formdata.append('comment_image',comment_image)}
+                        if(content != '')
+                            {formdata.append('content',content)}
+                        if(id != '')
+                            {formdata.append('id',id)}
+                        var token = '{{csrf_token}}'
+                        if((comment_image || content ) || (content && comment_image))
+                        {
+                            $("#comment_message"+id).fadeIn()
+                            $.ajax({ 
+                                    headers: { "X-CSRFToken": token },
+                                    url: '/newsfeeds/addComment/', 
+                                    type: 'post', 
+                                    data: formdata,
+                                    contentType: false, 
+                                    processData: false,
+                                    }).done(function(response){ 
+                                        if(!$("#comment_div"+id).is(":visible")){
+                                            $("#comment_div"+id).slideToggle()
+                                        }
+                                        if($("#noCommentMessage").is(":visible")){
+                                            $("#noCommentMessage").fadeOut()
+                                        }
+                                        fetchComments(id)
+                                        fetchNOLandNOC(id)                                    
+                                        $("#comment_image"+id).val('')
+                                        $("#comment_body"+id).val('')
+                                        $("#comment_body"+id).focus()
+                                        $("#comment_message"+id).fadeOut()
+
+                                    })
+                                
+                        }
+                        else
+                            {
+                            $("#message_div").css("background-color", "#FF4500");
+                                    $("#message").html("Please Enter Something!")
+                                    $("#message_div").slideDown(function() {
+                                        setTimeout(function() {
+                                            $("#message_div").slideUp();
+                                        }, 5000);
+                                    })
+                            }
+                    }) 
+
+                    // calling likes function on click likes button
+                    $("#like_button"+posts[i].id).on('click',function(data){
+                        var id = $(this).attr("data-id") 
+                            likePost(id)
+                     })
+                    //calling posts liked people
+                     $("#liked_people"+posts[i].id).on('click',function(data){
+                        var id = $(this).attr("data-id") 
+                            likedPeople(id)
+                     })
+
+
+                    //calling posts share function
+                     $("#share_post"+posts[i].id).on('click',function(data){
+                        var id = $(this).attr("data-id") 
+                            alert(id)
+                     })
+
+
+                    //calling edit pot function
+                    $("#edit_post"+posts[i].id).on('click',function(data)
+                    {
+                        var id = $(this).attr("data-id")
+                        var text = $("#body_text"+id).text()
+                        var html_text =  '<div class="post-add-comment-text-area">'+
+                                            '<input type="text" class="uk-input" id="updated_text'+id+'" value = "'+text+'"><br><br>'+
+                                              '<a href="javascript:void(0);" id="update_post'+id+'" class="button small warning pull-right">Update</a>'+
+                                            '</div>';
+
+                            $("#dialog-message").html(html_text)
+                                $( function() {
+                                    $("#dialog-message").dialog({
+                                    width: 450,
+                                    modal: true,
+                                    title:'Update Post',
+                                    buttons: {
+                                        Exit: function() {
+                                        $(this).dialog("close");
+                                        }
+                                    }
+                                    });
+                                })
+                                    
+                            $("#update_post"+id).on('click',function(){
+                                var updated_text = $("#updated_text"+id).val()
+                                    $.ajax({
+                                            url: '/newsfeeds/updata-post/',
+                                            data: {
+                                                'id': id,
+                                                'updated_text' : updated_text
+                                            },
+                                            type:'GET',
+                                            success: function (data) 
+                                            { 
+                                                fetchPosts()
+                                            $( "#dialog-message").dialog( "close" );
+                                            }
+                                        })
+                                    })                     
+                        })
+
+
+                    //calling disable comment function
+                     $("#disable_comment"+posts[i].id).on('click',function(data){
+                        var id = $(this).attr("data-id") 
+                            disableComment(id)
+                     })
+
+
+                    //calling delete post function
+                     $("#delete_post"+posts[i].id).on('click',function(data){
+                        var id = $(this).attr("data-id")
+                        var html = '<div id="dialog-confirm" title="Really want to delete?">'+
+                           '<p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>The post will be permanently deleted and cannot be recovered. Are you sure?</p>'+
+                        '</div>'        
+                        $("#dialog-message").html(html)                   
+                              $( function() {
+                                $( "#dialog-confirm" ).dialog({
+                                resizable: false,
+                                height: "auto",
+                                width: 400,
+                                modal: true,
+                                buttons: {
+                                    "Delete post": function() {
+                                        deletePost(id)
+                                        $( this ).dialog( "close" );
+                                    },
+                                    Cancel: function() {
+                                    $( this ).dialog( "close" );
+                                    }
+                                }
+                                });
+                            } );
+                     })
+                }
+             }
+// end if
+             else
+             {
+                 html +='<h3>User has not posted anytrhing now!</h3>'
+                 $("#posts").html(html)
+             }
+            }).fail(function(){
+                    $("#message_div").css("background-color", "#FF4500");
+                        $("#message").html("Opps! Something was Wrong!")
+                        $("#message_div").slideDown(function() {
+                            setTimeout(function() {
+                                $("#message_div").slideUp();
+                            }, 5000);
+                        })
+            }) 
+}
+// end function
+
+// fetch comments function
+function fetchComments(id,noc=1){
+var allComments='';
+    $.ajax({
+        url: '/newsfeeds/addComment/',
+        data: {
+            'id': id,
+            'noc':noc
+        },
+        dataType: 'json',
+        success: function (data) 
+        {
+            if(data.comments != '')
+            {
+                for(var i in data.comments)
+                {
+                    allComments += '<div id="c_c_id'+data.comments[i].id+'" class="post-comments-single">'+
+                            '<div class="post-comment-avatar">'
+                                if(data.comments[i].user__profileImage == ''){
+                                        allComments +='<img id="frame_dp" src="{{MEDIA_URL}}profileImages/'+data[i].profileImage+'" alt="Not Found">'
+                                }else{
+                                if(data.comments[i].user__gender == 'male'){
+                                    allComments += '<img src="{% static 'gender/male.jpg' %}" alt="Not Found">';
+                                }else{
+                                    allComments +='<img src="{% static 'gender/female.jpg' %}" alt="Not Found">';
+                                }
+                            }   
+                    allComments += '</div>'+
+                            '<div class="post-comment-text">'+
+                                '<div class="post-comment-text-inner">'+
+                                    '<h6>'+ data.comments[i].user__first_name +' '+ data.comments[i].user__last_name +'</h6>'
+                                    if(data.comments[i].comment_image){
+                                        allComments +='<img id="frame_dp" src="{{MEDIA_URL}}postMedia/'+ data.comments[i].comment_image +'" alt="Not Found" height="120px" width="120px">'
+                                    }
+                                    if(data.comments[i].user__id == user_id)
+                                     {
+                    allComments += '<div class="post-btn-action pull-right" style="margin-top:10px">'+
+                                        '<span class="icon-more uil-ellipsis-h"></span>'+
+                                        '<div class="mt-0 p-2" uk-dropdown="pos: bottom-right;mode:hover ">'+
+                                            '<ul class="uk-nav uk-dropdown-nav">'+
+                                                '<li><a href="javascript:void(0);" data-id="'+ data.comments[i].id +'" id="edit_comment'+ data.comments[i].id +'"> <i class="uil-edit-alt mr-1"></i> Edit Post </a></li>'+
+                                                '<li><a href="javascript:void(0);" class="text-danger" data-id="'+ data.comments[i].id +'" id="delete_comment'+ data.comments[i].id +'"> <i class="uil-trash-alt mr-1"></i> Delete </a></li>'+
+                                            '</ul>'+
+                                        '</div>'+
+                                    '</div>'
+                                     }
+                    allComments += '</div>'
+                                    if(data.comments[i].content)
+                                    {
+                                        allComments += '<p id="c_text'+data.comments[i].id+'">'+ data.comments[i].content +'</p>'
+                                       }
+                    allComments += '<div class="uk-text-small">'+
+                                    '<a href="javascript:void(0);" data-id="'+ data.comments[i].id +'" id="c_like'+data.comments[i].id+'" class="text-danger mr-1"> <i class="uil-heart"></i> <span id="checkCommmnetLike'+data.comments[i].id+'"></span> </a>'+
+                                    '<a href="javascript:void(0);" data_value ="'+data.comments[i].user__first_name +' '+ data.comments[i].user__last_name+'" id="reply'+data.comments[i].id+'" class=" mr-1"> Reply </a>'+
+                                    '<span>'+data.comments[i].updated_at + '</span>'+
+                                 '</div>'+
+                            '</div>'+
+                        '</div>';
+                    checkCommentLiked(data.comments[i].id )                 
+                } 
+                if(noc >= data.NOC) {
+                    $("#more-comments"+id).fadeOut()
+                }
+                $("#comment_div"+id).prepend(allComments)
+
+                for(var i in data.comments)
+                {
+                    //calling on click reply button function
+                     $("#reply"+ data.comments[i].id).on('click',function(data){
+                        var data_value = $(this).attr("data_value") 
+                        $("#comment_body"+id).val(data_value+'@')
+                        $("#comment_body"+id).focus();
+                     })
+
+                     //calling on click reply button function
+                     $("#c_like"+ data.comments[i].id).on('click',function(data){
+                        var id = $(this).attr("data-id") 
+                            commentLike(id)
+                     })
+
+                    //calling edit comment function
+                     $("#edit_comment"+ data.comments[i].id).on('click',function(data){
+                        var c_id = $(this).attr("data-id") 
+                        var c_text =  $("#c_text"+c_id).text()
+                            editComment(c_id,c_text,id)
+                     })
+
+                     //calling delete comment function
+                     $("#delete_comment"+ data.comments[i].id).on('click',function(data){
+                        var c_id = $(this).attr("data-id")
+                        var html = '<div id="dialog-confirm" title="Really want to delete?">'+
+                           '<p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>The comment will be permanently. Are you sure?</p>'+
+                        '</div>'        
+                        $("#dialog-message").html(html)                   
+                              $( function() {
+                                $( "#dialog-confirm" ).dialog({
+                                resizable: false,
+                                height: "auto",
+                                width: 400,
+                                modal: true,
+                                buttons: {
+                                    "Delete comment": function() {
+                                        deleteComment(c_id,id)
+                                        $( this ).dialog( "close" );
+                                    },
+                                    Cancel: function() {
+                                    $( this ).dialog( "close" );
+                                    }
+                                }
+                                });
+                            });
+                    })
+                }
+            }
+            else{
+                 $("#more-comments"+id).hide()
+                $("#comment_div"+id).prepend('<center><h4 id="noCommentMessage">No comments:Be first!</h4></center>')
+            }
+          }
+        })
+    }
+// fetch gallery
+function fetchGallery(id){
+var allComments='';
+    $.ajax({
+        url: '/newsfeeds/fetch-gallery-images/',
+        data: {
+            'id': id
+        },
+        dataType: 'json',
+        success: function (data) 
+        {
+            if(data != '')
+            {
+                $("#first_image"+id).attr('src',"{{MEDIA_URL}}postGallery/"+data[0].images)
+                $("#second_image"+id).attr('src',"{{MEDIA_URL}}postGallery/"+data[1].images)
+                $("#more_image"+id).html('<h3> +'+(data.length - 2)+'more </h3>')
+            }
+        }
+    })
+}
+
+// Like Posts
+function likePost(id){
+    var token ="{{csrf_token}}"
+    $.ajax({
+        headers:{ "X-CSRFToken": token },
+        url: '/newsfeeds/like-post/',
+        data: {
+            'id': id
+        },
+        type:'POST',
+        success: function (data) 
+        {
+            checkLiked(id)
+            fetchNOLandNOC(id)
+        }
+    });
+}
+// fetch liked People
+function likedPeople(id){
+    var html = ''
+    $.ajax({
+        url: '/newsfeeds/like-post/',
+        data: {
+            'id': id
+        },
+        type:'GET',
+        success: function (data) 
+        { 
+            likes = eval(data)
+            if(likes != '')
+            {
+               for(var l in likes)
+               {
+                   html += '<div class="friend-card">'+
+                                '<div class="uk-width-auto">'
+                            if(likes[l].user__profileImage)
+                            {
+                            html +='<img src="{{MEDIA_URL}}profileImages/'+ likes[l].user__profileImage +'" alt="">'
+                            }
+                            else
+                            {
+                                if(likes[l].user__gender == 'male')
+                                {
+                                    html +='<img src="{% static 'gender/male.jpg' %}" alt="">'
+                                }
+                                else
+                                {
+                                    html += '<img src="{% static 'gender/female.jpg' %}" alt="">'
+                                }
+                            }
+                    html += '</div>'+
+                            '<div class="uk-width-expand">'+
+                                '<h3>'+likes[l].user__first_name + ' ' +likes[l].user__last_name+'</h3>'+
+                            '</div>'+
+                            '<div class="uk-width-auto">'+
+                                '<span class="btn-option">'+
+                               ' </span>'+
+                            '</div>'+
+                        '</div>'+
+                        '<hr>';
+                }
+                $("#dialog-message").html(html)
+                    $( function() {
+                        $( "#dialog-message" ).dialog({
+                        width: 450,
+                        modal: true,
+                        title:'People Liked',
+                        buttons: {
+                            Exit: function() {
+                            $( this ).dialog( "close" );
+                            }
+                        }
+                        });
+                    });
+
+            }
+        }
+    });
+}
+// fetch no. of comments and no. of likes
+function fetchNOLandNOC(id)
+{
+    $.ajax({
+        url: '/newsfeeds/noc-like-comment/',
+        data: {
+            'id': id
+        },
+        type:'GET',
+        dataType: 'json',
+        success: function (data) 
+        { 
+           if(data != ''){
+                if(data.NOC != 0){
+                    $("#noc"+id).text(data.NOC)
+               }
+               else{
+                $("#noc"+id).text('')
+            }
+            
+            if(data.NOL != 0){
+                $("#nol"+id).text(data.NOL)
+            }
+            else{
+                $("#nol"+id).text('')
+            }
+           }
+           
+        }
+    })
+}
+// check liked or not
+function checkLiked(id){
+     $.ajax({
+        url: '/newsfeeds/check-like/',
+        data: {
+            'id': id
+        },
+        type:'GET',
+        success: function (like) 
+        { 
+           if(like != ''){
+               if(like == 'yes'){
+               $("#checkLike"+id).text('Liked') 
+               }else if(like == 'no'){
+                $("#checkLike"+id).text('Like')   
+               }
+           }
+           
+        }
+    })
+}
+// function disable comments
+function disableComment(id){
+    $.ajax({
+        url: '/newsfeeds/disable-comment/',
+        data: {
+            'id': id
+        },
+        type:'GET',
+        success: function (data) 
+        { 
+           if(data = 'success'){
+               commentEnableDisable(id)
+           }
+           
+        }
+    })
+}
+
+// commentEnableDisable function
+function commentEnableDisable(id){
+    $.ajax({
+        url: '/newsfeeds/check-enabledisable-comment/',
+        data: {
+            'id': id
+        },
+        type:'GET',
+        success: function (data) 
+        { 
+           if(data != ''){
+               if(data == 'enabled'){
+                   $("#d_comment_button"+id).css('display','none');
+                   $("#c_title"+id).text('Comments');
+                   $("#e_comment_button"+id).css('display','block');
+                   $("#e_d_comment"+id).text('Disable Comments');
+               }
+            else if(data == 'disabled'){
+                $("#e_comment_button"+id).css('display','none');
+                $("#d_title"+id).text('Disabled');
+                $("#d_comment_button"+id).css('display','block');
+                $("#e_d_comment"+id).text('Enable Comments');
+            }
+           }
+           
+        }
+    })
+}
+
+// function delete post
+
+function deletePost(id){
+    $.ajax({
+        url: '/newsfeeds/delete-post/',
+        data: {
+            'id': id
+        },
+        type:'GET',
+        success: function (data) 
+        { 
+           if(data = 'success'){
+              fetchPosts()
+           }
+           
+        }
+    })
+}
+// function deleteComment
+function deleteComment(c_id,id){
+     $.ajax({
+            url: '/newsfeeds/delete-comments/',
+            data: {
+                'id':c_id
+            },
+            type:'GET',
+            success: function (data) 
+            { 
+            if(data = 'success'){
+                $("#c_c_id"+c_id).fadeOut()
+                fetchNOLandNOC(id)
+            }
+            
+            }
+        })
+}
+
+// edit comment function
+function editComment(c_id,c_text,id){
+var html_text =  '<div class="post-add-comment-text-area">'+
+                    '<input type="text" class="uk-input" id="updated_text'+c_id+'" value = "'+c_text+'"><br><br>'+
+                        '<a href="javascript:void(0);" id="update_comment'+c_id+'" class="button small warning pull-right">Update</a>'+
+                    '</div>'
+        $("#dialog-message").html(html_text)
+            $( function() {
+                $( "#dialog-message" ).dialog({
+                width: 450,
+                modal: true,
+                title:'Update Post',
+                buttons: {
+                    Exit: function() {
+                    $( this ).dialog( "close" );
+                    }
+                }
+                });
+            }) 
+            $("#update_comment"+c_id).on('click',function(){
+                var updated_text = $("#updated_text"+c_id).val()
+                    $.ajax({
+                        url: '/newsfeeds/update-comment/',
+                        data: {
+                            'id': c_id,
+                            'updated_text' : updated_text
+                        },
+                        type:'GET',
+                        success: function (data) 
+                        { 
+                            $("#c_text"+c_id).text(updated_text)
+                            $("#dialog-message").dialog( "close" );
+                        }
+                    })
+                })
+            
+        }
+
+// Like Comments
+function commentLike(id){
+    var token ="{{csrf_token}}"
+    $.ajax({
+        headers:{ "X-CSRFToken": token },
+        url: '/newsfeeds/like-comment/',
+        data: {
+            'id': id
+        },
+        type:'POST',
+        success: function (data) 
+        {
+            checkCommentLiked(id)
+        }
+    });
+}
+// check liked or not
+function checkCommentLiked(id){
+     $.ajax({
+        url: '/newsfeeds/check-comment-like/',
+        data: {
+            'id': id
+        },
+        type:'GET',
+        success: function (like) 
+        { 
+           if(like != ''){
+               if(like == 'yes'){
+               $("#checkCommmnetLike"+id).text('Liked') 
+               }else if(like == 'no'){
+                $("#checkCommmnetLike"+id).text('Like')   
+               }
+           }
+           
+        }
+    })
+}
+
+})
+
+function friendName(page_id){
+     $.ajax({
+        url: '/newsfeeds/get-friend-name/',
+        data: {
+            'page_id': page_id
+        },
+        type:'GET',
+        datatype:'json',
+        success:function(data) 
+        { 
+         $("#friend_name").html(' ' +'<span class="iconify" data-icon="ion:caret-forward-outline" data-inline="false"></span> '+ data.f_name +' '+ data.l_name)
+           
+        }
+    })
+}
+
+</script>
+{% endblock  %}

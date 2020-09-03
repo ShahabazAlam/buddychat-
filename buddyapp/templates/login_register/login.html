@@ -1,0 +1,60 @@
+<html>
+<head>
+{% load static %}
+    <link rel="stylesheet" href={% static "assets/css/style.css" %} />
+    <link rel="stylesheet" href={% static "assets/css/framework.css" %} />
+
+</head>
+
+<body>
+
+ <!-- Content
+    ================================================== -->
+    <div uk-height-viewport="expand: true" class="uk-flex uk-flex-middle">
+        <div class="uk-width-1-4@m uk-width-1-2@s m-auto">
+            <div class="px-2 uk-animation-scale-up">
+                <div class="my-4 uk-text-center">
+                    <h1 class="mb-2"> Sing in  </h1>
+                    <p class="my-2">Don't have an a account. 
+                    <a href='/user_accounts/register/' class="uk-link text-primary"> Sing up</a> </p>
+                </div>
+                <form method="post" action="/user_accounts/login/">
+                            {% csrf_token %}
+                    {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert {% if message.tags %} alert-{{ message.tags }}{% endif %}">{{ message|safe }}</div>
+                    {% endfor %}
+                    {% endif %}
+                    <div class="uk-form-group">
+                        <div class="uk-position-relative">
+                            <input class="uk-input bg-secondary" name="email" type="email" placeholder="Your email ">
+                        </div>
+                    </div>
+                    <div class="uk-form-group">
+                        <div class="uk-position-relative">
+                            <input class="uk-input bg-secondary" name="password" type="password" placeholder="Your password">
+                        </div>
+                    </div>
+                      {% if form.errors %}
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <div class="alert alert-danger">
+                                    <strong>{{ error|escape }}</strong>
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                <strong>{{ error|escape }}</strong>
+                            </div>
+                        {% endfor %}
+                        {% endif %}
+                    <button type="submit" class="button primary large block mb-4">Get Started</button>
+                    <a href="#" class="text-center uk-display-block"> Forget your password</a>
+                </form>
+            </div>       
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,50 @@
+{% extends 'buddyapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="main_content">
+            <div class="main_content_inner">
+                <h1> Friends </h1>
+                <nav class="responsive-tab style-4 mb-3">
+                    <ul>
+                        <li class="uk-active"><a href="#"> All Friends <span>{{friends_data.count}}</span> </a></li>
+                    </ul>
+                </nav>
+                <div class="uk-child-width-1-3@m" uk-grid>
+                    <div>
+                    {% for fd in friends_data %}
+                        <div class="friend-card">
+                            <div class="uk-width-auto">
+                            {% if fd.profileImage %}
+                                <img src="{{MEDIA_URL}}profileImages/{{fd.profileImage}}" alt="not found">
+                            {% else %}
+                                {% if fd.gender == 'male' %}
+                                    <img src="{% static 'gender/male.jpg' %}" alt="">
+                                {% else %}
+                                    <img src="{% static 'gender/female.jpg' %}" alt="">
+                                {% endif %}
+                            {% endif %}
+                                <span class="online-dot"></span>
+                            </div>
+                            <div class="uk-width-expand">
+                            {% if fd.first_name and fd.last_name %}
+                                <h3>{{fd.first_name|title}} {{fd.last_name|title}}</h3>
+                            {% else %}
+                            <h3>{{fd.username|title}} </h3>
+                               {% endif %}
+                            </div>
+                        </div>
+                        <hr>
+                        {% endfor %}
+                    </div>
+                 <div>
+              </div>                  
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascriptcodes %}
+
+{% endblock  %}

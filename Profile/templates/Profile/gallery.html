@@ -1,0 +1,69 @@
+{% extends 'buddyapp/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="main_content">
+    <div class="main_content_inner">
+        <div class="uk-grid-large" uk-grid>
+            <div class="uk-width-1-2@m" style="width:100%">
+                <h1>Gallery </h1>
+                <div class="uk-flex uk-flex-between">
+                    <nav class="responsive-tab style-2 mb-4">
+                        <ul>
+                            <li class="uk-active"><a href="#">{{name}}</a></li>
+                        </ul>
+                    </nav>
+
+                </div>
+
+                <div class="uk-child-width-1-4@m uk-child-width-1-3@s uk-child-width-1-2 uk-grid-collapse uk-overflow-hidden"
+                    style="border-radius: 25px;  overflow: hidd en;" uk-lightbox="animation: scale" uk-grid>
+                         <!-- Add images to Gallery -->
+                        {% if name == 'Photos'%}
+                            {% for data in data %}
+                                {% if ".jpg" in data.thumbnail or ".png" in data.thumbnail or ".bmp" in data.thumbnail or ".gif" in data.thumbnail or ".jpeg" in data.thumbnail %}
+                                    <div>
+                                        <a href="{{MEDIA_URL}}postThumbnail/{{data.thumbnail}}" data-caption="Image caption">
+                                            <div class="photo-card" data-src="{{MEDIA_URL}}postThumbnail/{{data.thumbnail}}" uk-img>
+                                            </div>
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}                   
+                        
+                        <!-- Add videos to Gallery -->
+                        {% elif name == 'Videos' %}
+                            {% for imagevideos in data %}
+                                {% if ".m4v" in imagevideos.thumbnail or ".avi" in imagevideos.thumbnail or ".mp4" in imagevideos.thumbnail or ".mp4" in imagevideos.thumbnail or ".webm" in imagevideos.thumbnail %}
+                                        <div style="margin-left:10px;margin-top:5px">
+                                            <video class="rounded" controls><source src="{{MEDIA_URL}}postThumbnail/{{imagevideos.thumbnail}}"></video>
+                                        </div>
+                                {% endif %}
+                            {% endfor %}
+                        <!-- Add Profile Pics to Gallery -->
+                        {% elif name == 'Profile Pics' %}
+                            {% for imagevideos in data %}
+                                <div>
+                                    <a href="{{MEDIA_URL}}profileImages/{{imagevideos.profileImage}}" data-caption="Image caption">
+                                        <div class="photo-card" data-src="{{MEDIA_URL}}profileImages/{{imagevideos.profileImage}}" uk-img>
+                                            </div>
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        <!-- Add Cover Pics to Gallery -->
+                         {% elif name == 'Cover Pics' %}
+                             {% for imagevideos in data %}
+                                <div>
+                                    <a href="{{MEDIA_URL}}coverImages/{{imagevideos.coverImage}}" data-caption="Image caption">
+                                        <div class="photo-card" data-src="{{MEDIA_URL}}coverImages/{{imagevideos.coverImage}}" uk-img>
+                                        </div>
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock  %}

@@ -1,0 +1,763 @@
+{% extends 'buddyapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="main_content">
+
+<div class="main_content_inner">
+
+    <div class="uk-grid-large" uk-grid>
+
+        <div class="uk-width-2-3@m fead-area">
+
+ <!-- close -->     
+        <div id ="post">
+        <!-- Posts-->
+        </div>
+ 
+</div>
+<div style="display:none" id="dialog-message" title="Download complete">
+</div>
+
+{% include 'buddyapp/left-sidebar.html' %}
+{% endblock %}
+
+{% block javascriptcodes %}
+<script>
+
+$(document).ready(function() { 
+    $("#e_comment_button").trigger('click')
+    $(document).scrollTop($(document).height());  
+}); 
+
+
+var user_id = '{{request.user.id}}'
+var post_id = '{{post_id}}'
+    var url = '/notifications/read-comment/';
+    $.get(url,{post_id},function(data){
+        var post = onePost(data,user_id) 
+        $("#post").html(post)
+    })
+function onePost(data,user_id){
+    var html = ''
+    html += '<div class="post" id ="post">'+
+                            '<div class="post-heading">'+
+                                '<div class="post-avature">'
+                                if(data.d_p != 'None')
+                                {
+                                    html +='<img id="frame_dp" src="/media/profileImages/'+data.d_p+'" alt="Not Found">'
+                                }else
+                                {
+                                    if(data.gender == 'male')
+                                    {
+                                        html += '<img src="/static/gender/male.jpg" alt="Not Found">'
+                                    }else
+                                    {
+                                        html +='<img src="/static/gender/female.jpg" alt="Not Found">'
+                                    }
+                                }   
+                        html += '</div>'+
+                                '<div class="post-title">'+
+                                    '<h4>'+ data.first_name +' '+ data.last_name +'</h4>'+
+                                    '<p>'+ timeAgo(data.updated_at) + '<i class="uil-users-alt"></i> </p>'+
+                                ' </div>'
+                                if(data.user_id == '{{request.user.id}}')
+                                    {
+                        html += '<div class="post-btn-action">'+
+                                    '<span class="icon-more uil-ellipsis-h"></span>'+
+                                    '<div class="mt-0 p-2" uk-dropdown="pos: bottom-right;mode:hover ">'+
+                                        '<ul class="uk-nav uk-dropdown-nav">'+
+                                        '<li><a href="javascript:void(0);" data-id="'+data.id+'" id="edit_post"> <i class="uil-edit-alt mr-1"></i> Edit Post </a></li>'+
+                                        '<li><a href="javascript:void(0);" data-id="'+data.id+'" id="disable_comment"> <i class="uil-comment-slash mr-1"></i><span id="e_d_comment"></span></a></li>'+
+                                        '<li><a href="javascript:void(0);" class="text-danger" data-id="'+data.id+'" id="delete_post"> <i class="uil-trash-alt mr-1"></i> Delete </a></li>'+
+                                        '</ul>'+
+                                    '</div>'+
+                                '</div>'
+                                    }
+                        html += '</div>'+
+                            '<div class="post-description">'
+                                if(data.body)
+                                {
+                                    html += '<p id="body_text">'+data.body+'<hr></p>'
+                                }
+                            html += '<div class="uk-grid-small" uk-grid>'+
+                                        '<div class="uk-width-1-1@m">'
+                                        if(data.thumbnail)
+                                        {
+                                            if ( data.thumbnail.toString().endsWith(".jpg" || ".jpeg" || ".bmp" || ".gif" || ".png" )) {
+                                                html += '<img src="/media/postThumbnail/'+data.thumbnail+'" class="rounded" alt="Not Found">'
+                                                } else{
+                                                html += '<video width="580" height="400" class="rounded" controls><source src="/media/postThumbnail/'+data.thumbnail+'"></video>'
+                                                }
+                                        }
+                                html += '</div>'+
+                                        '<div class="uk-width-1-2@m uk-width-1-2">'+
+                                            '<img id="first_image" src="" class="rounded" alt="">'+
+                                        '</div>'+
+                                        '<div class="uk-width-1-2@m uk-width-1-2 uk-position-relative">'+
+                                            '<img src="" class="rounded" id="second_image" alt="">'+
+                                            '<div class="uk-position-center uk-light">'+
+                                                '<a href="javascript:void(0);" id="more_image">'+
+                                                '</a></div>'+
+                                        '</div>'+ 
+                                '</div>'+
+                                '<div class="post-state-details">'+
+                                    '<div>'+
+                                        '<a href="javascript:void(0);" data-id="'+data.id+'" id="liked_people" ><img src={% static "assets/images/icons/reactions_like.png" %} alt=""></a>'+
+                                        ' <p id="nol"></p>'+
+                                    '</div>'+
+                                '</div>'+
+                            '</div>'+
+                            '<div class="post-state">'+
+                                '<div class="post-state-btns" data-id="'+data.id+'"  id="like_button"> <i class="uil-thumbs-up"></i><span id="checkLike"></span></div>'+
+                                '<div class="post-state-btns" style="display:none" data-id="'+data.id+'"  id="e_comment_button"> <i class="uil-comment-alt"></i><span id="noc"> </span><span id="c_title"></span></div>'+
+                                '<div class="post-state-btns" style="display:none" id="d_comment_button"> <i class="uil-comment-slash"></i><span id="noc"> </span><span id="d_title"></span></div>'+
+                            '</div>'+
+                                '<div class="post-comments" >'+
+                                '<div style="display:none" id="comment_div">'+
+                                '</div>'+
+                                '<div style="display:none" id="comment_form_div"><div id="more_comment_div"></div>'+
+                                    '<div class="post-add-comment">'+
+                                            '<div class="post-add-comment-avature">'+
+                                            '</div>'+
+                                            '<div class="post-add-comment-text-area">'+
+                                                '<input type="text" id="comment_body" placeholder="Write your comment...">'+
+                                                '<div class="icons">'+
+                                                    '<span class="uil-grin"></span>'+
+                                                    '<span class="uil-image" id="comment_image_button"></span>'+
+                                                        '<input type="file" hidden id="comment_image">'+
+                                                    '<span id="comment_text" data-id="'+data.id+'" class="uil uil-plus mr-1"><span>'+
+                                            '</div>'+                                        
+                                        '</div>'+
+                                    '</div>'+
+                                '</div>'+
+                            '<span id="comment_message" style="display:none;color:green" ><small>Posting comment...</small></span>'+
+                        '<div >'+
+                    '</div>'+
+                '</div>';
+                fetchGallery(data.id)
+                fetchNOLandNOC(data.id)
+                checkLiked(data.id)
+                commentEnableDisable(data.id)
+
+// commends ---------------------------------------------------------------------------
+                $(document).on('click','#e_comment_button',function()
+                    {
+                        
+                        var id = $(this).attr("data-id")
+                        //adding show more link and comment form for comment 
+                        show_more = '<a href="javascript:void(0);" id="more-comments"  class="view-more-comment"> Load more Comments</a>';
+                            $("#more_comment_div").html(show_more) 
+
+
+                        //Load comments on comment_div button
+                        $("#comment_div").slideToggle( "slow", function()
+                        {
+                            if($("#comment_div").is(":visible"))
+                            {  
+                                $("#comment_form_div").show()
+                                noc = 1  
+                                fetchComments(id,noc,user_id)
+                                // fetch more comments function
+                                $('#more-comments').on('click',function(){
+                                    noc = noc + 5
+                                    fetchComments(id,noc,user_id)
+                                })
+                            }
+                            else
+                            {
+                                $("#comment_form_div").hide()
+                                $("#comment_body").val('')
+                                allComments=''
+                                $("#comment_div").html(allComments)
+                            }
+                        })
+                    })                                    
+                    // filebutton trigger
+                    $(document).on('click',"#comment_image_button",function(){
+                        $("#comment_image").trigger('click')
+                    })
+                    // calling comment function on click comment button
+                    $(document).on('click',"#comment_text",function(){
+                        var id = $(this).attr("data-id")
+                        var comment_image = $("#comment_image")[0].files[0]
+                        var content = $("#comment_body").val()
+                        var formdata = new FormData()
+                        if(comment_image != '')
+                            {formdata.append('comment_image',comment_image)}
+                        if(content != '')
+                            {formdata.append('content',content)}
+                        if(id != '')
+                            {formdata.append('id',id)}
+                        var token = '{{csrf_token}}'
+                        if((comment_image || content ) || (content && comment_image))
+                        {
+                            $("#comment_message").fadeIn()
+                            $.ajax({ 
+                                    headers: { "X-CSRFToken": token },
+                                    url: '/newsfeeds/addComment/', 
+                                    type: 'post', 
+                                    data: formdata,
+                                    contentType: false, 
+                                    processData: false,
+                                    }).done(function(response){ 
+                                        if(!$("#comment_div").is(":visible")){
+                                            $("#comment_div").slideToggle()
+                                        }
+                                        if($("#noCommentMessage").is(":visible")){
+                                            $("#noCommentMessage").remove()
+                                        }
+                                        fetchComments(id,noc=1,user_id)
+                                        fetchNOLandNOC(id)                                    
+                                        $("#comment_image").val('')
+                                        $("#comment_body").val('')
+                                        $("#comment_body").focus()
+                                        $("#comment_message").fadeOut()
+
+                                    })
+                                
+                        }
+                        else
+                            {
+                            $("#message_div").css("background-color", "#FF4500");
+                                    $("#message").html("Please Enter Something!")
+                                    $("#message_div").slideDown(function() {
+                                        setTimeout(function() {
+                                            $("#message_div").slideUp();
+                                        }, 5000);
+                                    })
+                            }
+                    }) 
+
+                    // calling likes function on click likes button
+                    $(document).on('click',"#like_button",function(data){
+                        var id = $(this).attr("data-id") 
+                            likePost(id)
+                     })
+                    //calling posts liked people
+                     $(document).on('click',"#liked_people",function(data){
+                        var id = $(this).attr("data-id") 
+                            likedPeople(id)
+                     })
+
+
+                    //calling disable comment function
+                     $(document).on('click',"#disable_comment",function(data){
+                        var id = $(this).attr("data-id") 
+                            disableComment(id)
+                     })
+
+                     //calling edit post function
+                     $(document).on('click',"#edit_post",function(data){
+                        var id = $(this).attr("data-id")
+                        var text = $("#body_text").text()
+                        var html_text =  '<div class="post-add-comment-text-area">'+
+                                            '<input type="text" class="uk-input" id="updated_text'+id+'" value = "'+text+'"><br><br>'+
+                                              '<a href="javascript:void(0);" id="update_post'+id+'" class="button small warning pull-right">Update</a>'+
+                                            '</div>'
+                            $("#dialog-message").html(html_text)
+                            $( function() {
+                                $( "#dialog-message" ).dialog({
+                                width: 450,
+                                modal: true,
+                                title:'Update Post',
+                                buttons: {
+                                    Exit: function() {
+                                    $( this ).dialog( "close" );
+                                    }
+                                }
+                                });
+                            }) 
+
+                            $(document).on('click',"#update_post"+id,function(){
+                                var updated_text = $("#updated_text"+id).val()
+                                    $.ajax({
+                                        url: '/newsfeeds/updata-post/',
+                                        data: {
+                                            'id': id,
+                                            'updated_text' : updated_text
+                                        },
+                                        type:'GET',
+                                        success: function (data) 
+                                        { 
+                                             $("#body_text").text(updated_text)
+                                            editPostdialog.close()
+                                        }
+                                    })
+                                 })                     
+                             })
+
+                     //calling delete post function
+                     $(document).on('click',"#delete_post",function(data){
+                        var id = $(this).attr("data-id")
+                        var html = '<div id="dialog-confirm" title="Really want to delete?">'+
+                           '<p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>The post will be permanently deleted and cannot be recovered. Are you sure?</p>'+
+                        '</div>'        
+                        $("#dialog-message").html(html)                   
+                              $( function() {
+                                $( "#dialog-confirm" ).dialog({
+                                resizable: false,
+                                height: "auto",
+                                width: 400,
+                                modal: true,
+                                buttons: {
+                                    "Delete post": function() {
+                                        deletePost(id)
+                                        $( this ).dialog( "close" );
+                                    },
+                                    Cancel: function() {
+                                    $( this ).dialog( "close" );
+                                    }
+                                }
+                                });
+                            } );
+                     })
+
+         return html;
+
+}
+
+// fetch gallery
+function fetchGallery(id){
+var allComments='';
+    $.ajax({
+        url: '/newsfeeds/fetch-gallery-images/',
+        data: {
+            'id': id
+        },
+        dataType: 'json',
+        success: function (data) 
+        {
+            if(data != '')
+            {
+                $("#first_image").attr('src',"/media/postGallery/"+data[0].images)
+                $("#second_image").attr('src',"/media/postGallery/"+data[1].images)
+                $("#more_image").html('<h3> +'+(data.length - 2)+'more </h3>')
+            }
+        }
+    })
+}
+
+// Like Posts
+function likePost(id){
+    var token ="{{csrf_token}}"
+    $.ajax({
+        headers:{ "X-CSRFToken": token },
+        url: '/newsfeeds/like-post/',
+        data: {
+            'id': id
+        },
+        type:'POST',
+        success: function (data) 
+        {
+            checkLiked(id)
+            fetchNOLandNOC(id)
+        }
+    });
+}
+// fetch no. of comments and no. of likes
+function fetchNOLandNOC(id)
+{
+    $.ajax({
+        url: '/newsfeeds/noc-like-comment/',
+        data: {
+            'id': id
+        },
+        type:'GET',
+        dataType: 'json',
+        success: function (data) 
+        { 
+           if(data != ''){
+               if(data.NOC != 0){
+                    $("#noc").text(data.NOC)
+               }
+               else{
+                $("#noc").text('')
+            }
+            
+            if(data.NOL != 0){
+                $("#nol").text(data.NOL)
+            }
+            else{
+                $("#nol").text('')
+            }
+           }
+           
+        }
+    })
+}
+// check liked or not
+function checkLiked(id){
+     $.ajax({
+        url: '/newsfeeds/check-like/',
+        data: {
+            'id': id
+        },
+        type:'GET',
+        success: function (like) 
+        { 
+           if(like != ''){
+               if(like == 'yes'){
+               $("#checkLike").text('Liked') 
+               }else if(like == 'no'){
+                $("#checkLike").text('Like')   
+               }
+           }
+           
+        }
+    })
+}
+// function disable comments
+function disableComment(id){
+    $.ajax({
+        url: '/newsfeeds/disable-comment/',
+        data: {
+            'id': id
+        },
+        type:'GET',
+        success: function (data) 
+        { 
+           if(data = 'success'){
+               commentEnableDisable(id)
+           }
+           
+        }
+    })
+}
+
+// commentEnableDisable function
+function commentEnableDisable(id){
+    $.ajax({
+        url: '/newsfeeds/check-enabledisable-comment/',
+        data: {
+            'id': id
+        },
+        type:'GET',
+        success: function (data) 
+        { 
+           if(data != ''){
+               if(data == 'enabled'){
+                   $("#d_comment_button").css('display','none');
+                   $("#c_title").text('Comments');
+                   $("#e_comment_button").css('display','block');
+                   $("#e_d_comment").text('Disable Comments');
+               }
+            else if(data == 'disabled'){
+                $("#e_comment_button").css('display','none');
+                $("#d_title").text('Disabled');
+                $("#d_comment_button").css('display','block');
+                $("#e_d_comment").text('Enable Comments');
+            }
+           }
+           
+        }
+    })
+}
+
+// function delete post
+
+function deletePost(id){
+    $.ajax({
+        url: '/newsfeeds/delete-post/',
+        data: {
+            'id': id
+        },
+        type:'GET',
+        success: function (data) 
+        { 
+           if(data = 'success'){
+              fetchPosts()
+           }
+           
+        }
+    })
+}
+// fetch comments function
+function fetchComments(id,noc=1,user_id){
+var allComments='';
+    $.ajax({
+        url: '/newsfeeds/addComment/',
+        data: {
+            'id': id,
+            'noc':noc
+        },
+        dataType: 'json',
+        success: function (data) 
+        {
+            if(data.comments != '')
+            {
+                for(var i in data.comments)
+                {
+                    checkCommentLiked(data.comments[i].id )
+                    
+                    allComments += '<div id="c_c_id'+data.comments[i].id+'" class="post-comments-single">'+
+                            '<div class="post-comment-avatar">'
+                                if(data.comments[i].user__profileImage == ''){
+                                        allComments +='<img id="frame_dp" src="{{MEDIA_URL}}profileImages/'+data[i].profileImage+'" alt="Not Found">'
+                                }else{
+                                if(data.comments[i].user__gender == 'male'){
+                                    allComments += '<img src="/static/gender/male.jpg" alt="Not Found">';
+                                }else{
+                                    allComments +='<img src="/static/gender/female.jpg" alt="Not Found">';
+                                }
+                            }   
+                    allComments += '</div>'+
+                            '<div class="post-comment-text">'+
+                                '<div class="post-comment-text-inner">'+
+                                    '<h6>'+ data.comments[i].user__first_name +' '+ data.comments[i].user__last_name +'</h6>'
+                                    if(data.comments[i].comment_image){
+                                        allComments +='<img id="frame_dp" src="/media/postMedia/'+ data.comments[i].comment_image +'" alt="Not Found" height="120px" width="120px">'
+                                    }
+                                    if(data.comments[i].user__id == '{{request.user.id}}')
+                                     {
+                    allComments += '<div class="post-btn-action pull-right" style="margin-top:10px">'+
+                                        '<span class="icon-more uil-ellipsis-h"></span>'+
+                                        '<div class="mt-0 p-2" uk-dropdown="pos: bottom-right;mode:hover ">'+
+                                            '<ul class="uk-nav uk-dropdown-nav">'+
+                                                '<li><a href="javascript:void(0);" data-id="'+ data.comments[i].id +'" id="edit_comment"> <i class="uil-edit-alt mr-1"></i> Edit Post </a></li>'+
+                                                '<li><a href="javascript:void(0);" class="text-danger" data-id="'+ data.comments[i].id +'" id="delete_comment'+ data.comments[i].id +'"> <i class="uil-trash-alt mr-1"></i> Delete </a></li>'+
+                                            '</ul>'+
+                                        '</div>'+
+                                    '</div>'
+                                     }
+                                    if(data.comments[i].content)
+                                    {
+                                        allComments += '<p id="c_text'+ data.comments[i].id +'">'+ data.comments[i].content +'</p>'
+                                       }
+                    allComments += '</div>'+
+                                    '<div class="uk-text-small">'+
+                                        '<a href="javascript:void(0);" data-id="'+ data.comments[i].id +'" id="c_like" class="text-danger mr-1"> <i class="uil-heart"></i> <span id="checkCommmnetLike"></span> </a>'+
+                                        '<a href="javascript:void(0);" data_value ="'+data.comments[i].user__first_name +' '+ data.comments[i].user__last_name+'" id="reply" class=" mr-1"> Reply </a>'+
+                                        '<span>'+timeAgo(data.comments[i].updated_at) + '</span>'+
+                                    '</div>'+
+                                '</div>'+
+                            '</div>';                 
+                } 
+                if(noc >= data.NOC) {
+                    $("#more-comments").remove()
+                }
+                $("#comment_div").append(allComments)
+
+                for(var i in data.comments)
+                {
+                    //calling on click reply button function
+                     $(document).on('click',"#reply",function(data){
+                        var data_value = $(this).attr("data_value") 
+                        $("#comment_body").val(data_value+'@')
+                        $("#comment_body").focus();
+                     })
+
+                     //calling on click reply button function
+                     $(document).on('click',"#c_like",function(data){
+                        var id = $(this).attr("data-id") 
+                            commentLike(id)
+                     })
+
+                    //calling edit comment function
+                     $(document).on('click',"#edit_comment",function(data){
+                        var c_id = $(this).attr("data-id") 
+                        var c_text =  $("#c_text"+c_id).text()
+                            editComment(c_id,c_text,id)
+                     })
+
+                     //calling delete comment function
+                     $(document).on('click',"#delete_comment"+data.comments[i].id,function(data){
+                        var c_id = $(this).attr("data-id")
+                        var html = '<div id="dialog-confirm" title="Really want to delete?">'+
+                           '<p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>The comment will be permanently. Are you sure?</p>'+
+                        '</div>'                   
+                         $("#dialog-message").html(html)                   
+                              $( function() {
+                                $( "#dialog-confirm" ).dialog({
+                                resizable: false,
+                                height: "auto",
+                                width: 400,
+                                modal: true,
+                                buttons: {
+                                    "Delete comment": function() {
+                                        deleteComment(c_id,id)
+                                        $( this ).dialog( "close" );
+                                    },
+                                    Cancel: function() {
+                                    $( this ).dialog( "close" );
+                                    }
+                                }
+                                });
+                            });
+                    })
+                }
+            }
+            else{
+                 $("#more-comments").remove()
+                $("#comment_div").html('<center><h4 id="noCommentMessage">No comments:Be first!</h4></center>')
+            }
+          }
+        })
+    }
+
+// Like Comments
+function commentLike(id){
+    var token ="{{csrf_token}}"
+    $.ajax({
+        headers:{ "X-CSRFToken": token },
+        url: '/newsfeeds/like-comment/',
+        data: {
+            'id': id
+        },
+        type:'POST',
+        success: function (data) 
+        {
+            checkCommentLiked(id)
+        }
+    });
+}
+// check liked or not
+function checkCommentLiked(id){
+     $.ajax({
+        url: '/newsfeeds/check-comment-like/',
+        data: {
+            'id': id
+        },
+        type:'GET',
+        success: function (like) 
+        { 
+           if(like != ''){
+               if(like == 'yes'){
+               $("#checkCommmnetLike").text('Liked') 
+               }else if(like == 'no'){
+                $("#checkCommmnetLike").text('Like')   
+               }
+           }
+           
+        }
+    })
+}
+
+
+// edit comment function
+function editComment(c_id,c_text,id){
+var html_text =  '<div class="post-add-comment-text-area">'+
+                    '<input type="text" class="uk-input" id="updated_text" value = "'+c_text+'"><br><br>'+
+                        '<a href="javascript:void(0);" id="update_comment" class="button small warning pull-right">Update</a>'+
+                    '</div>'
+                        $("#dialog-message").html(html_text)
+                        $( function() {
+                            $( "#dialog-message" ).dialog({
+                            width: 450,
+                            modal: true,
+                            title:'Update Post',
+                            buttons: {
+                                Exit: function() {
+                                $( this ).dialog( "close" );
+                                }
+                            }
+                            });
+                        }) 
+            $(document).on('click',"#update_comment",function(){
+                var updated_text = $("#updated_text").val()
+                    $.ajax({
+                        url: '/newsfeeds/update-comment/',
+                        data: {
+                            'id': c_id,
+                            'updated_text' : updated_text
+                        },
+                        type:'GET',
+                        success: function (data) 
+                        { 
+                            $("#c_text"+c_id).text(updated_text)
+                            $( "#dialog-message" ).dialog( "close" );
+                        }
+                    })
+                })
+            
+        }
+
+// function deleteComment
+function deleteComment(c_id,id){
+     $.ajax({
+            url: '/newsfeeds/delete-comments/',
+            data: {
+                'id':c_id
+            },
+            type:'GET',
+            success: function (data) 
+            { 
+            if(data = 'success'){
+                $("#c_c_id"+c_id).remove()
+                fetchNOLandNOC(id)
+            }
+                if($('#comment_div').is(':empty')){
+                fetchComments(id,noc=1,'{{request.user.id}}')
+            } 
+            }
+        })
+}
+
+// fetch liked People
+function likedPeople(id){
+    var html = ''
+    $.ajax({
+        url: '/newsfeeds/like-post/',
+        data: {
+            'id': id
+        },
+        type:'GET',
+        success: function (data) 
+        { 
+            likes = eval(data)
+            if(likes != '')
+            {
+               for(var l in likes)
+               {
+                   html += '<div class="friend-card">'+
+                                '<div class="uk-width-auto">'
+                            if(likes[l].user__profileImage)
+                            {
+                            html +='<img src="{{MEDIA_URL}}profileImages/'+ likes[l].user__profileImage +'" alt="">'
+                            }
+                            else
+                            {
+                                if(likes[l].user__gender == 'male')
+                                {
+                                    html +='<img src="{% static 'gender/male.jpg' %}" alt="">'
+                                }
+                                else
+                                {
+                                    html += '<img src="{% static 'gender/female.jpg' %}" alt="">'
+                                }
+                            }
+                    html += '</div>'+
+                            '<div class="uk-width-expand">'+
+                                '<h3>'+likes[l].user__first_name + ' ' +likes[l].user__last_name+'</h3>'+
+                            '</div>'+
+                            '<div class="uk-width-auto">'+
+                                '<span class="btn-option">'+
+                               ' </span>'+
+                            '</div>'+
+                        '</div>'+
+                        '<hr>';
+                }
+                 var likedPeople = $.dialog({
+                        useBootstrap: false,
+                        title: 'liked People',
+                        content: html,
+                        type: 'green',
+                        buttons: {
+                            Close: {
+                                btnClass: 'btn-red',
+                                action: function(){
+                                    likedPeople.close()
+                                }
+                            },
+                        }
+
+                    });
+
+            }
+        }
+    });
+}
+
+</script>
+
+{% endblock  %}

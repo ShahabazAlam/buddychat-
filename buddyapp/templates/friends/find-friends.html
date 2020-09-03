@@ -1,0 +1,517 @@
+{% extends 'buddyapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="main_content">
+
+            <div class="main_content_inner">
+
+
+
+                <h1> Friends </h1>
+                <nav class="responsive-tab style-1 mb-5">
+                    <ul>
+                        <li class="uk-active"><a id="suggestions" href="#"> Suggestions </a></li>
+                        <li><a href="#" id="requests"> Requests <span id="requestCount"></span></a></li>
+                        <li><a href="#" id="blocked"> Blocked User <span id="blockCount"></span></a></li>
+                    </ul>
+                </nav>
+
+
+
+                <div class="uk-position-relative" uk-slider="finite: true">
+
+                    <div class="uk-slider-container pb-3">
+
+                        <ul id="Suggestion_list" class="uk-slider-items uk-child-width-1-3@m uk-child-width-1-3@s uk-grid-small uk-grid">
+
+                        </ul>
+                        <a class="uk-position-center-left-out uk-position-small uk-hidden-hover slidenav-prev" href="#"
+                            uk-slider-item="previous"></a>
+                        <a class="uk-position-center-right-out uk-position-small uk-hidden-hover slidenav-next" href="#"
+                            uk-slider-item="next"></a>
+                    </div>
+
+                </div>
+
+
+
+                <!-- 
+                <hr class="mb-2 mt-5"> -->
+
+
+                <h2 class="mt-lg-5"> Your Friends </h2>
+
+                <nav class="responsive-tab style-4 mb-3">
+                    <ul>
+                        <li class="uk-active"><a href="#"> All Friends <span id="friendCount"></span> </a></li>
+                    </ul>
+                </nav>
+
+                    <div id="yourFriends" class="uk-child-width-1-3@m" uk-grid>
+                    <!-- Friend List -->
+                    <div>
+                </div>             
+            </div>
+        </div>
+     </div>
+
+{% endblock %}
+
+{% block javascriptcodes %}
+<script src = "{% static "js/channels/on-off-line.js" %}" > </script>
+<script>
+// scripts for friend system
+$(document).ready(function(){
+    
+//loading suggest friend list
+    FriendSuggest()
+
+// getting friend suggestion list by clicking on Suggestions
+$("#suggestions").on('click',function(){
+    FriendSuggest()
+})
+// get all friend requests
+    $("#requests").on('click',function(){
+        allRequest()
+    })
+
+// get all blocked user
+$("#blocked").on('click',function(){
+        blockedUser()
+    })
+// fetch my friends
+    fetchMyFriends()
+//suggest friend function
+function FriendSuggest()
+    {
+        var html =''
+        $.ajax({
+            url:'/friends/suggest-friends',
+            type:'GET',
+        }).done(function(users)
+         {
+            var data = eval(users);
+            if(data != '')
+            {
+                for(var i in data)
+                {
+                    html += '<li id='+data[i].id+'>'+
+                                '<div class="friend-card">'+
+                                '<div class="uk-width-auto">'+
+                                    '<a href="/profile/user_timeline/'+data[i].id+'" >'
+                                        if(data[i].imageProfile == ''){
+                                             html +='<img id="frame_dp" src="{{MEDIA_URL}}profileImages/'+data[i].profileImage+'"alt="Not Found">'
+                                        }else{
+                                        if(data[i].gender == 'male'){
+                                            html += '<img src="{% static 'gender/male.jpg' %}" alt="Not Found">'
+                                        }else{
+                                            html +='<img src="{% static 'gender/female.jpg' %}" alt="Not Found">'
+                                        }
+                                    }     
+                                    html +='</div>'+
+                                            '<div class="uk-width-expand">'+
+                                                '<a href="/profile/user_timeline/'+data[i].id+'" style="text-decoration:none">'+
+                                                '<h3>'+data[i].first_name +' '+ data[i].last_name+'</h3>'+
+                                                '</a><p> 3 Matual friends </p>'+
+                                                '<div class="friend-card-btns">'+
+                                                    '<a id="send_request'+data[i].id+'" href="#" class="button success small" data-friend ="'+data[i].id+'"><i class="uil-user-plus"></i> Add </a>'+
+                                                    '<a href="/profile/user_timeline/'+data[i].id+'" class="button primary small"><i class="uil-user"></i> Profile </a>'+
+                                                    '<!--<a href="#" class="button secondary small"> Remove </a>-->'+
+                                                '</div>'+
+                                            '</div>'+
+                                        '</div>'+
+                                    '</li>';
+                        $("#Suggestion_list").html(html)
+                    }
+            // loop for actions send request
+                for(var i in data)
+                {
+                    // calling send request function on click add button
+                    $("#send_request"+data[i].id).on('click',function(data){
+                        var id =  $(this).attr("data-friend")
+                        sendRequest(id)
+                     })
+
+                    // calling user profile function on click profile button
+                    $("#user_profile"+data[i].id).on('click',function(data){
+                        var id =  $(this).attr("data-friend")
+                        userProfile(id)
+                     })
+                }
+             }
+             else
+             {
+                 html +='<h3>No Suggestion For You!</h3>'
+                 $("#Suggestion_list").html(html)
+             }
+            })
+            .fail(function() { 
+                    html +='<h3 style="color:red">Opps Something wrong! Try again</h3>'
+                    $("#Suggestion_list").html(html)
+                })
+    }
+
+
+//send request function
+function sendRequest(id){
+        $.ajax({
+                url:'/friends/send-request/'+id,
+                type:'GET',
+                ContentType:false,
+                ProcessData:false,
+                cache:false,
+                success:(function() {
+                    FriendSuggest()
+             })
+        })
+     }
+
+// add friend requests
+function allRequest(){
+    var html =''
+        $.ajax({
+            url:'/friends/friend-requests/',
+            type:'GET',
+        }).done(function(users)
+         {
+            var data = eval(users);
+            if(data != '')
+            {
+                $("#requestCount").text(data.length)
+                for(var i in data)
+                {
+                    html += '<li id='+data[i].id+'>'+
+                                '<div class="friend-card">'+
+                                '<div class="uk-width-auto">'+
+                                    '<a href="/profile/user_timeline/'+data[i].id+'" style="text-decoration:none">'
+                                     if(data[i].imageProfile == ''){
+                                             html +='<img id="frame_dp" src="{{MEDIA_URL}}profileImages/'+data[i].profileImage+'"alt="Not Found">'
+                                        }else{
+                                        if(data[i].gender == 'male'){
+                                            html += '<img src="{% static 'gender/male.jpg' %}" alt="Not Found">'
+                                        }else{
+                                            html +='<img src="{% static 'gender/female.jpg' %}" alt="Not Found">'
+                                        }
+                                    }  
+                                    html += '</div>'+
+                                        '<div class="uk-width-expand">'+
+                                        '<a href="/profile/user_timeline/'+data[i].id+'" style="text-decoration:none">'+
+                                        '<h3>'+data[i].first_name +' '+ data[i].last_name+'</h3>'+
+                                        '</a>'+
+                                        '<p>  </p>'+
+                                        '<div class="friend-card-btns">'+
+                                            '<a id="accept_request'+data[i].id+'" href="#" class="button success small" data-friend ="'+data[i].id+'">Accept </a>'+
+                                             '<a id="cancel_request'+data[i].id+'" href="#" class="button danger small" data-friend ="'+data[i].id+'"> Cancel </a>'+
+                                             '<!--<a href="#" class="button secondary small"> Remove </a>-->'+
+                                        '</div>'+
+                                    '</div>'+
+                                '</div>'+
+                            '</li>';
+                        $("#Suggestion_list").html(html)
+                    }
+            // loop for actions like send request
+                for(var i in data)
+                {      // calling accept request function on click accept button
+                    $("#accept_request"+data[i].id).on('click',function(data){
+                        var id =  $(this).attr("data-friend")
+                        acceptRequest(id)
+                     })
+                    // calling cancel request function on click cancel button
+                     $("#cancel_request"+data[i].id).on('click',function(data){
+                        var id =  $(this).attr("data-friend")
+                          var action = confirm("Are you sure you want to cancel this request?");
+                            if (action != false) {
+                                cancelRequest(id)
+                            }
+                     })
+
+                }
+             }
+             else
+             {
+                 html +='<h3>No Friend Requests!</h3>'
+                 $("#Suggestion_list").html(html)
+             }
+            })
+            .fail(function() { 
+                    html +='<h3 style="color:red">Opps Something wrong! Try again</h3>'
+                    $("#Suggestion_list").html(html)
+                })
+    }
+
+    //accept request function
+    function acceptRequest(id){
+        $.ajax({
+                url:'/friends/accept-request/'+id,
+                type:'GET',
+                data: id,
+                ContentType:false,
+                ProcessData:false,
+                cache:false,
+                success:(function() {
+                   allRequest()
+                   fetchMyFriends()
+             })
+        })
+    }
+
+    //cancel request function
+    function  cancelRequest(id){
+         $.ajax({
+                url:'/friends/cancel-request/'+id,
+                type:'GET',
+                ContentType:false,
+                ProcessData:false,
+                cache:false,
+                success:(function() {
+                    allRequest()
+                    FriendSuggest()
+             })
+        })
+    }
+
+// fetch all friends function
+    function fetchMyFriends(){
+        var html =''
+        $.ajax({
+            url:'/friends/your-friends',
+            type:'GET',
+        }).done(function(users)
+         {
+            var data = eval(users);
+            if(data != '')
+            {
+                $("#friendCount").text(data.length)
+                for(var i in data)
+                {
+                html += '<div>'+
+                            '<div class="friend-card">'+
+                                '<div class="uk-width-auto">'+
+                                    '<a href="/profile/user_timeline/'+data[i].id+'" id="view_profile_pic'+data[i].id+'" data-friend ="'+data[i].id+'" style="text-decoration:none">'
+                                    if(data[i].imageProfile == ''){
+                                            html +='<img id="frame_dp" src="{{MEDIA_URL}}profileImages/'+data[i].profileImage+'"alt="Not Found">'
+                                    }else{
+                                    if(data[i].gender == 'male'){
+                                        html += '<img src="{% static 'gender/male.jpg' %}" alt="Not Found">'
+                                    }else{
+                                        html +='<img src="{% static 'gender/female.jpg' %}" alt="Not Found">'
+                                    }
+                                }   
+                                    
+                                html += '</a>'+
+                                    '<span id="online-ckeck'+data[i].id+'"></span>'+
+                                '</div>'+
+                                '<div class="uk-width-expand">'+
+                                    '<a href="/profile/user_timeline/'+data[i].id+'" id="view_your_profile'+data[i].id+'" data-friend ="'+data[i].id+'" style="text-decoration:none">'+
+                                    '<h3>'+data[i].first_name +' '+ data[i].last_name+'</h3>'+
+                                    '</a>'+
+                                    '<p></p>'+
+                                '</div>'+
+                                '<div class="uk-width-auto">'+
+                                    '<span class="btn-option">'+
+                                       ' <i class="icon-feather-more-horizontal"></i>'+
+                                    '</span>'+
+                                    '<div class="dropdown-option-nav"uk-dropdown="pos: bottom-right ;mode : hover ;animation: uk-animation-slide-bottom-small">'+
+                                        '<ul>'+
+                                            '<li>'+
+                                               ' <span> <i class="uil-envelope"></i><a href="/messages/'+data[i].id+'" id="send_message'+data[i].id+'" data-friend ="'+data[i].id+'" style="color:green"> Send message </a></span>'+
+                                            '</li>'+
+                                            '<li>'+
+                                                '<span> <i class="uil-user-times"></i><a href="#" id="unfriend_user'+data[i].id+'" data-friend ="'+data[i].id+'" style="color:orange"> Unfriend </a></span>'+
+                                            '</li>'+
+                                            '<li>'+
+                                                '<span> <i class="uil-padlock"></i><a href="#" id="block_user'+data[i].id+'" data-friend ="'+data[i].id+'" style="color:red"> Block </a> </span>'+
+                                            '</li>'+
+                                        '</ul>'+
+                                    '</div>'+
+                                '</div>'+
+                            '</div>'+
+                        '</div>'
+                        onlineCheck(data[i].id)
+                        $("#yourFriends").html(html)
+                    }
+            // loop for actions send request
+                for(var i in data)
+                {
+                    
+
+                    // calling unfriend user function on click profile button
+                    $("#unfriend_user"+data[i].id).on('click',function(data){
+                        var id =  $(this).attr("data-friend")
+                          var action = confirm("Are you sure you want to unfriend this user?");
+                            if (action != false) {
+                                unfriendUser(id)
+                            }
+                     })
+
+                       // calling block user function on click profile button
+                    $("#block_user"+data[i].id).on('click',function(data){
+                        var id =  $(this).attr("data-friend")
+                          var action = confirm("Are you sure you want to block this user?");
+                            if (action != false) {
+                                    blockUser(id)
+                                }
+                     })
+                    
+                }
+             }
+             else
+             {
+                 html +='<h3 style="color:green">No Friends! Add new friends</h3>'
+                 $("#yourFriends").html(html)
+             }
+            })
+            .fail(function() { 
+                    html +='<h3 style="color:red">Opps Something wrong! Try again</h3>'
+                    $("#yourFriends").html(html)
+                })
+        }
+
+    // online check function
+    function onlineCheck(id){
+         $.ajax({
+            url:'/messages/check-online/',
+            type:'GET',
+            data: {'id':id},
+            success:(function(data) {
+              if(data.status == 'online'){
+                  $('#online-ckeck'+id).attr('class','online-dot')    
+                }
+                else
+                {  
+                    time = new Date(data.last_echo);
+                    $('#online-ckeck'+id).attr('class','offline-dot') 
+                   
+                    
+                    }
+            })
+    })
+    }
+
+    // unfriend function
+    function unfriendUser(id){
+         $.ajax({
+                url:'/friends/unfriend/'+id,
+                type:'GET',
+                ContentType:false,
+                ProcessData:false,
+                cache:false,
+                success:(function() {
+                    fetchMyFriends()
+                    FriendSuggest()
+             })
+        })
+    }
+
+    //block user function
+    function blockUser(id){
+         $.ajax({
+                url:'/friends/block_user/'+id,
+                type:'GET',
+                ContentType:false,
+                ProcessData:false,
+                cache:false,
+                success:(function() {
+                    fetchMyFriends()
+                     FriendSuggest()
+             })
+        })
+    }
+
+    //view your profile pic function
+   // function viewProfilePic(id){
+    //    alert(id+'profile')
+    //}
+
+
+// fetch all blocked users
+
+
+function blockedUser(){
+    var html =''
+        $.ajax({
+            url:'/friends/blocked-users/',
+            type:'GET',
+        }).done(function(users)
+         {
+            var data = eval(users);
+            if(data != '')
+            {
+                $("#blockCount").text(data.length)
+                for(var i in data)
+                {
+                    html += '<li id='+data[i].id+'>'+
+                                '<div class="friend-card">'+
+                                '<div class="uk-width-auto">'+
+                                    '<a href="/profile/user_timeline/'+data[i].id+'" style="text-decoration:none">'
+                                     if(data[i].imageProfile == ''){
+                                             html +='<img id="frame_dp" src="{{MEDIA_URL}}profileImages/'+data[i].profileImage+'"alt="Not Found">'
+                                        }else{
+                                        if(data[i].gender == 'male'){
+                                            html += '<img src="{% static 'gender/male.jpg' %}" alt="Not Found">'
+                                        }else{
+                                            html +='<img src="{% static 'gender/female.jpg' %}" alt="Not Found">'
+                                        }
+                                    }  
+                                    html += '</div>'+
+                                        '<div class="uk-width-expand">'+
+                                        '<a href="/profile/user_timeline/'+data[i].id+'" style="text-decoration:none">'+
+                                        '<h3>'+data[i].first_name +' '+ data[i].last_name+'</h3>'+
+                                        '</a>'+
+                                        '<p>  </p>'+
+                                        '<div class="friend-card-btns">'+
+                                            '<a id="unblock'+data[i].id+'" href="#" class="button success small" data-friend ="'+data[i].id+'">Unblock</a>'+
+                                             '<!--<a href="#" class="button secondary small"> Remove </a>-->'+
+                                        '</div>'+
+                                    '</div>'+
+                                '</div>'+
+                            '</li>';
+                        $("#Suggestion_list").html(html)
+                    }
+            // loop for actions like send request
+                for(var i in data)
+                {  // calling cancel request function on click cancel button
+                     $("#unblock"+data[i].id).on('click',function(data){
+                        var id =  $(this).attr("data-friend")
+                          var action = confirm("Are you sure you want to unblock this user?");
+                            if (action != false) {
+                                Unblock(id)
+                            }
+                     })
+
+                }
+             }
+             else
+             {
+                 html +='<h3>No Blocked User!</h3>'
+                 $("#Suggestion_list").html(html)
+             }
+            })
+            .fail(function() { 
+                    html +='<h3 style="color:red">Opps Something wrong! Try again</h3>'
+                    $("#Suggestion_list").html(html)
+         })
+    }
+
+// unblock user function
+
+function Unblock(id){
+         $.ajax({
+                url:'/friends/unblock/'+id,
+                type:'GET',
+                ContentType:false,
+                ProcessData:false,
+                cache:false,
+                success:(function() {
+                    blockedUser()
+             })
+        })
+    }
+
+})
+
+
+
+</script>
+{% endblock  %}
