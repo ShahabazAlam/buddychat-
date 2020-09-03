@@ -99,6 +99,8 @@ python-dateutil==2.8.1
 python-dotenv==0.13.0
 python-memcached==1.59
 pytz==2019.3
+pywin32
+pywin32-ctypes
 PyYAML==5.3.1
 readme-renderer==26.0
 redis==3.5.3
