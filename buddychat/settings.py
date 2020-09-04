@@ -107,6 +107,16 @@ CACHES = {
 # cache alias will be used. Set to `None` to disable caching.
 USER_AGENTS_CACHE = 'default'
 
+DATABASES = {
+    'default': {
+        'ENGINE':'django.db.backends.postgresql_psycopg2',,
+        'NAME':'ddptlp0mc1e59a',
+        'USER':'oofgizairosfmv',
+        'PASSWORD':'00b958a1d8ec5c095b0b54bf026f8c5dc3f96b423812861d3f522c35e5852099',
+        'HOST':'ec2-54-172-173-58.compute-1.amazonaws.com',
+        'PORT':5432
+    }
+}
 
 
 # Password validation
