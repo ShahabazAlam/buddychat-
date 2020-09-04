@@ -129,4 +129,5 @@ websocket-client==0.57.0
 whitenoise==5.0.1
 wrapt==1.12.1
 zope.interface==5.1.0
+django_channels
 
