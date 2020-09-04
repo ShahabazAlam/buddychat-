@@ -86,11 +86,12 @@ TEMPLATES = [
 WSGI_APPLICATION = 'buddychat.wsgi.application'
 ASGI_APPLICATION = 'buddychat.routing.application'
 
+
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('https://buddychat61.heroku.com/', 6379)],
+            "hosts": [('192.168.99.100', 6379)],
         },
     },
 }
