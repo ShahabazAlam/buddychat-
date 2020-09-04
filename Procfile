@@ -1,4 +1,4 @@
 release: python manage.py migrate
 web: gunicorn buddychat.wsgi --preload --log-file -
-web: daphne buddychat.asgi:channel_layer --port $PORT --bind 0.0.0.0 -v2
+web: daphne WR.buddychat.asgi:channel_layer --port $PORT --bind 0.0.0.0 -v2
 worker: python manage.py runworker -v2
