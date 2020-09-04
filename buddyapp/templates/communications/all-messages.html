@@ -183,7 +183,7 @@
         let userId = {{ user_id }};
 
         let chatSocket = new ReconnectingWebSocket(
-            'ws://' + window.location.host +
+            'wss://' + window.location.host +
             '/ws/chat/' + {{friend_id}} + '/');
 
         chatSocket.onopen = function (e) {

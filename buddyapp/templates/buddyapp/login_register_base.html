@@ -124,7 +124,7 @@
 // online offline user -------------------------------------
 
     let onlineSocket = new ReconnectingWebSocket(
-        'ws://' + window.location.host +
+        'wss://' + window.location.host +
         '/ws/online_check/');
 
     onlineSocket.onopen = function () {
@@ -141,7 +141,7 @@
 
 // friend socket
     let friendsSocket = new ReconnectingWebSocket(
-        'ws://' + window.location.host +
+        'wss://' + window.location.host +
         '/ws/friends/');
 
     friendsSocket.onopen = function () {
@@ -392,7 +392,7 @@ function readBirthdayNotification(b_id,user_id){
 
 
 let NotificationSocket = new ReconnectingWebSocket(
-    'ws://' + window.location.host +
+    'wss://' + window.location.host +
     '/ws/all_notifications/');
 
 NotificationSocket.onopen = function (e) {
