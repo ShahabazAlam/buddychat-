@@ -90,7 +90,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('0.0.0.0')],
+            "hosts": [('https://buddychat61.heroku.com/', 6379)],
         },
     },
 }
