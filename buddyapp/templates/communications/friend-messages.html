@@ -211,9 +211,9 @@ let f_dp ='{{data.f_dp}}'
 let f_gender = '{{data.f_gender}}'
 let u_gender = '{{data.u_gender}}'
 let u_dp = '{{data.u_dp}}'
-
+var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
             let chatSocket = new ReconnectingWebSocket(
-            'ws://' + window.location.host +
+            ws_scheme + '://' + window.location.host +
             '/ws/chat/' + friendId + '/');
 
         chatSocket.onopen = function (e) {
