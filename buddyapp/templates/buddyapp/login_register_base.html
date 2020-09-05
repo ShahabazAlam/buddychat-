@@ -119,12 +119,12 @@
 
 // modal script
 
-
-
+var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+alert(ws_scheme)
 // online offline user -------------------------------------
 
     let onlineSocket = new ReconnectingWebSocket(
-        'wss://' + window.location.host +
+        ws_scheme + '://' + window.location.host +
         '/ws/online_check/');
 
     onlineSocket.onopen = function () {
@@ -141,7 +141,7 @@
 
 // friend socket
     let friendsSocket = new ReconnectingWebSocket(
-        'wss://' + window.location.host +
+        ws_scheme + '://' + window.location.host +
         '/ws/friends/');
 
     friendsSocket.onopen = function () {
@@ -392,7 +392,7 @@ function readBirthdayNotification(b_id,user_id){
 
 
 let NotificationSocket = new ReconnectingWebSocket(
-    'wss://' + window.location.host +
+    ws_scheme + '://' + window.location.host +
     '/ws/all_notifications/');
 
 NotificationSocket.onopen = function (e) {

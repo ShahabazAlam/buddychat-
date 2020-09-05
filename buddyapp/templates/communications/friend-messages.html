@@ -213,7 +213,7 @@ let u_gender = '{{data.u_gender}}'
 let u_dp = '{{data.u_dp}}'
 
             let chatSocket = new ReconnectingWebSocket(
-            'wss://' + window.location.host +
+            'ws://' + window.location.host +
             '/ws/chat/' + friendId + '/');
 
         chatSocket.onopen = function (e) {
