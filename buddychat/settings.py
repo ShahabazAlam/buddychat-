@@ -91,7 +91,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('192.168.99.100', 6379)],
+            "hosts": ["redis://(<The Public DNS of the Redis instance>, 6379)"],,
         },
     },
 }
@@ -111,10 +111,10 @@ USER_AGENTS_CACHE = 'default'
 DATABASES = {
     'default': {
         'ENGINE':'django.db.backends.postgresql_psycopg2',
-        'NAME':'ddptlp0mc1e59a',
-        'USER':'oofgizairosfmv',
-        'PASSWORD':'00b958a1d8ec5c095b0b54bf026f8c5dc3f96b423812861d3f522c35e5852099',
-        'HOST':'ec2-54-172-173-58.compute-1.amazonaws.com',
+        'NAME':'mydb8115',
+        'USER':'ShahabazAlam',
+        'PASSWORD':'Shah@12345',
+        'HOST':'mydb8115.cccuzxvyqhvj.us-east-2.rds.amazonaws.com',
         'PORT':5432
     }
 }
