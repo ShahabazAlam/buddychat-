@@ -91,12 +91,11 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": ["redis://(<The Public DNS of the Redis instance>, 6379)"],,
+            "hosts": [('192.168.99.100', 6379)],
         },
     },
 }
 
-# Cache backend is optional, but recommended to speed up user agent parsing
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
@@ -110,12 +109,12 @@ USER_AGENTS_CACHE = 'default'
 
 DATABASES = {
     'default': {
-        'ENGINE':'django.db.backends.postgresql_psycopg2',
-        'NAME':'mydb8115',
-        'USER':'ShahabazAlam',
-        'PASSWORD':'Shah@12345',
-        'HOST':'mydb8115.cccuzxvyqhvj.us-east-2.rds.amazonaws.com',
-        'PORT':5432
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME':'buddychat',
+        'USER':'root',
+        'PASSWORD':'',
+        'HOST':'localhost',
+        'PORT':3306
     }
 }
 
